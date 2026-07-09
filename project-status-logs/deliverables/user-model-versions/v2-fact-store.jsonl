@@ -1,0 +1,15 @@
+{"fact": "She works as a freelance graphic designer.", "temporality": "durable", "evidence": ["E12", "E44", "E51"], "date": "2023-02-10", "confidence": "high"}
+{"fact": "She left an agency job about three years ago after burnout.", "temporality": "durable", "evidence": ["E12", "E19"], "date": "2023-02-10", "confidence": "high"}
+{"fact": "She works from home.", "temporality": "durable", "evidence": ["E44", "E60"], "date": "2023-03-01", "confidence": "high"}
+{"fact": "She lives with her partner Miguel; they have no children.", "temporality": "durable", "evidence": ["E05", "E31"], "date": "2023-02-10", "confidence": "high"}
+{"fact": "She has a dog named Biscuit.", "temporality": "durable", "evidence": ["E22"], "date": "2023-04-14", "confidence": "high"}
+{"fact": "She moved from Chicago to Portland two years ago for Miguel's job.", "temporality": "durable", "evidence": ["E07", "E33", "E58"], "date": "2023-02-10", "confidence": "high"}
+{"fact": "She is an introvert who keeps a few close friendships rather than a wide network.", "temporality": "durable", "evidence": ["E14", "E41"], "date": "2023-05-02", "confidence": "med"}
+{"fact": "She has managed anxiety since her twenties.", "temporality": "durable", "evidence": ["E27", "E39"], "date": "2023-05-02", "confidence": "high"}
+{"fact": "Her father lives in Chicago and taught her to draw.", "temporality": "durable", "evidence": ["E36", "E62"], "date": "2023-06-11", "confidence": "high"}
+{"fact": "Her father had a cardiac event earlier this year that he survived.", "temporality": "time-bound", "evidence": ["E62", "E64", "E66"], "date": "2024-03-20", "confidence": "high"}
+{"fact": "She traveled back to Chicago for two weeks after her father's health scare.", "temporality": "time-bound", "evidence": ["E64"], "date": "2024-03-22", "confidence": "high"}
+{"fact": "She is slowly and reluctantly trying to rebuild a social circle in Portland.", "temporality": "time-bound", "evidence": ["E41", "E58", "E70"], "date": "2024-04-05", "confidence": "med"}
+{"fact": "She values autonomy over income stability.", "temporality": "durable", "evidence": ["E12", "E19", "E51"], "date": "2023-02-10", "confidence": "med"}
+{"fact": "Irregular freelance income is a recurring worry for her.", "temporality": "durable", "evidence": ["E51", "E53"], "date": "2023-07-08", "confidence": "med"}
+{"fact": "Her recurring pattern is to withdraw when things get hard.", "temporality": "durable", "evidence": ["E39", "E58", "E70"], "date": "2023-05-02", "confidence": "med"}
