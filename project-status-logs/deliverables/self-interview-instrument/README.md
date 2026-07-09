@@ -18,4 +18,4 @@ stance, after open-ended sessions produced commentary instead of usable material
 | `interviewer-brief.md` | The operating manual for the AI running the interview. |
 | `theme-bank.md` | The grid of life domains to cover, each with prompts and a stop condition. |
 
-These are the instrument itself — no personal data. The persona data it collects is kept out of this repo.
+The instrument only; the persona data it collects is kept out of this repo.

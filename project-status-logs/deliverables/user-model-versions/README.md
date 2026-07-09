@@ -13,5 +13,5 @@ All four describe the same fictional person (Dana Whitfield) so the versions can
 | **v3 — Structured** | The facts organized into three layers: stable **traits**, current **concerns**, and the life **story**. (Based on a three-level model of personality from psychology — McAdams.) | `v3-structured/` |
 | **v4 — Connections** | Everything in v3, plus explicit **cross-cutting patterns** that link facts across the three layers into conclusions no single fact states. | `v4-connections.md` |
 
-The progression is the experiment: v1 → v2 tests structure vs. prose, v2 → v3 tests organized vs. flat, and
+Each step is one comparison: v1 → v2 tests structure vs. prose, v2 → v3 tests organized vs. flat, and
 v3 → v4 tests whether pre-computing the connections helps beyond just having the organized facts.
