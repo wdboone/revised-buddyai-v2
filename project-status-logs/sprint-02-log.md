@@ -23,7 +23,7 @@
 
 | Date | Backlog | Ready | In Progress | In Review | Done | Notes |
 |---|---|---|---|---|---|---|
-| 07/13 | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ | Issues tracked at https://github.com/wdboone/revised-buddyai-v2/issues |
+| 07/13 | Server / database; user accounts | | User modeling; evals | | | Issues tracked at https://github.com/wdboone/revised-buddyai-v2/issues |
 
 ## 4. Blockers & risks
 
@@ -52,8 +52,8 @@
 | Reflection prompt | Team's notes |
 |---|---|
 | **What went well this sprint?** | Shipped a working demo with the core coaching features; got the first evaluation results comparing the user-model versions. |
-| **What slowed us down?** | _TBD_ |
-| **What will we change next sprint?** | _TBD_ |
+| **What slowed us down?** | n/a |
+| **What will we change next sprint?** | n/a |
 
 ## 8. Links & artifacts
 
@@ -61,5 +61,5 @@
 |---|---|
 | **GitHub repository** | https://github.com/wdboone/revised-buddyai-v2 |
 | **GitHub Project board** | https://github.com/wdboone/revised-buddyai-v2/issues |
-| **Discussions** | _TBD_ |
+| **Discussions** | n/a |
 | **Prompt docs / artifacts** | Example deliverables: `project-status-logs/deliverables/` |

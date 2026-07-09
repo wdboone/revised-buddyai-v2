@@ -23,7 +23,7 @@
 
 | Date | Backlog | Ready | In Progress | In Review | Done | Notes |
 |---|---|---|---|---|---|---|
-| 07/06 | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ | Issues tracked at https://github.com/wdboone/revised-buddyai-v2/issues |
+| 07/06 | | | | | | Issues tracked at https://github.com/wdboone/revised-buddyai-v2/issues |
 
 ## 4. Blockers & risks
 
@@ -60,5 +60,5 @@
 |---|---|
 | **GitHub repository** | https://github.com/wdboone/revised-buddyai-v2 |
 | **GitHub Project board** | https://github.com/wdboone/revised-buddyai-v2/issues |
-| **Discussions** | _TBD_ |
+| **Discussions** | n/a |
 | **Prompt docs / artifacts** | Example deliverables: `project-status-logs/deliverables/` |
