@@ -23,13 +23,14 @@
 
 | Date | Backlog | Ready | In Progress | In Review | Done | Notes |
 |---|---|---|---|---|---|---|
-| 07/13 | Server / database; user accounts | | User modeling; evals | | | Issues tracked at https://github.com/wdboone/revised-buddyai-v2/issues |
+| 07/13 | Server / database | User accounts | User modeling; role alignment & guardrails; evals | | Markdown rendering; chat history; topic routing | Issues tracked at https://github.com/wdboone/revised-buddyai-v2/issues |
 
 ## 4. Blockers & risks
 
 | Blocker / risk | Impact | Owner | Action to resolve | Status |
 |---|---|---|---|---|
 | The demo calls the AI service and holds its key directly in the browser | Fine for a demo, not safe for real users | Willie | Move the key and the calls behind a server before any public use | Open (planned for a later sprint) |
+| Done features store data on the device only | Some (chat history, user modeling) will need refactoring once a database and accounts are introduced | Willie | Revisit persistence when the server/database lands | Open |
 
 ## 5. Decisions made
 
