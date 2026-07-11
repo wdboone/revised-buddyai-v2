@@ -675,10 +675,13 @@ function renderProfilePanel(){
 }
 function editFact(i){
   const f=state.profile.memoryFacts[i];
-  const cur=typeof f==="string"?f:f.text;
+  // Normalize: guarantee this entry is an object before we touch .text
+  if(typeof f==="string"){
+    state.profile.memoryFacts[i]={text:f,category:"general",addedAt:new Date().toISOString()};
+  }
+  const cur=state.profile.memoryFacts[i].text;
   const t=prompt("Edit this fact:",cur); if(!t||!t.trim()) return;
-  if(typeof state.profile.memoryFacts[i]==="string") state.profile.memoryFacts[i]=t.trim();
-  else state.profile.memoryFacts[i].text=t.trim();
+  state.profile.memoryFacts[i].text=t.trim();
   saveProfile(); renderProfilePanel();
 }
 function delFact(i){
@@ -856,6 +859,11 @@ CURRENT TOPIC AREA: ${cat.label} — ${cat.focus}
 
 WHAT YOU KNOW ABOUT ${state.name.toUpperCase()} SO FAR:
 ${facts}
+ 
+ACTIVELY USE WHAT YOU KNOW: When you know something relevant about ${state.name}, weave
+it naturally into your replies rather than waiting for the user to repeat themselves. For
+example, if you know they are managing debt, connect financial advice to that context
+unprompted.
 ${catNote?"\nLast summary for "+cat.label+": "+catNote:""}
 
 MEMORY UPDATES: After every reply, output this block exactly (parsed by the app, never shown to the user):
