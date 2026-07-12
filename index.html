@@ -10,6 +10,7 @@
 <!-- Markdown + sanitizer via CDN — no npm or build step required -->
 <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* ══════════════ TOKENS ══════════════ */
 :root{
@@ -398,8 +399,10 @@ a{color:inherit;}
    ⏳ Real user accounts (email + password)
    ⏳ Cross-device conversation sync
 ════════════════════════════════════════════════════ */
-
-/* ── Categories ── */
+const SUPABASE_URL = "https://zyvazosbfhajimklkmze.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_2BrtGNePv10yXz0etE3eGw_eZVv_Udk";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  /* ── Categories ── */
 const CATEGORIES = [
   { id:"general",       label:"Just Talk",                icon:"💬", tint:"var(--sage-tint)", sub:"Whatever's on your mind, start anywhere.",          intro:"What's on your mind today, {name}?",                                                                                focus:"General open-ended life coaching. Follow what the person brings; don't force a category." },
   { id:"relationships", label:"Relationships",            icon:"❤️",  tint:"#FBEFEA",          sub:"Partners, friends, family — the people in your life.", intro:"Relationships can be the best and hardest part of life, {name}. What's going on?",                              focus:"Romantic relationships, friendships, family dynamics, communication, conflict, boundaries, breakups, dating, trust." },
