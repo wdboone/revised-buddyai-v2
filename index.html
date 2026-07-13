@@ -614,11 +614,13 @@ function logOut(){
 async function afterAuth(user){
   state.userId = user.id;
   state.name = (user.email||"").split("@")[0];
-  let { data: profile } = await sb.from("profiles").select("*").eq("user_id",user.id).single();
+  let { data: profile, error: selErr } = await sb.from("profiles").select("*").eq("user_id",user.id).single();
+  if(selErr && selErr.code !== "PGRST116") console.error("Buddy: profile select error:", selErr);
   const isReturning = !!profile;
   if(!profile){
     const now = new Date().toISOString();
-    await sb.from("profiles").insert({ user_id:user.id, first_met:now, last_seen:now, session_count:1 });
+    const { error: insErr } = await sb.from("profiles").insert({ user_id:user.id, first_met:now, last_seen:now, session_count:1 });
+    if(insErr) console.error("Buddy: profile insert error:", insErr);
     profile = { first_met:now, last_seen:now, session_count:1, memory_facts:[], category_notes:{} };
   } else {
     profile.session_count = (profile.session_count||0)+1;
