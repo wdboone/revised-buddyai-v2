@@ -395,14 +395,18 @@ a{color:inherit;}
    ─────────────────────────────────────────────────
    WORKING NOW
    ✅ Markdown rendering
-   ✅ Chat history  (localStorage — device-only)
+   ✅ Chat history  (Supabase Postgres — synced to account)
    ✅ Topic routing  (Haiku auto-classification)
    ✅ Role alignment & guardrails
    ✅ User modeling  (persistent facts + view/edit)
+   ✅ User accounts  (email/password via Supabase Auth)
+   ✅ Cross-device conversation sync  (Supabase Postgres + RLS)
    ─────────────────────────────────────────────────
-   COMING IN v3  (needs Supabase)
-   ⏳ Real user accounts (email + password)
-   ⏳ Cross-device conversation sync
+   REMAINING WORK
+   ⏳ Server-side API proxy (Supabase Edge Function —
+      keeps the Anthropic key off the browser)
+   ⏳ Per-user rate limiting (enforced at the Edge
+      Function level)
 ════════════════════════════════════════════════════ */
 const SUPABASE_URL = "https://zyvazosbfhajimklkmze.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_2BrtGNePv10yXz0etE3eGw_eZVv_Udk";
