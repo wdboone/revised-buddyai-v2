@@ -292,15 +292,20 @@ a{color:inherit;}
     <div class="onboard-step active" id="step-welcome">
       <h1>Buddy AI</h1>
       <p class="tagline">A steady, thoughtful companion for the everyday stuff of life — relationships, work, money, family, faith, and the kind of person you're trying to become.</p>
-      <button class="btn-primary" onclick="goToStep('name')">Get started</button>
+      <button class="btn-primary" onclick="goToStep('auth')">Get started</button>
       <p class="onboard-foot">Buddy is an AI companion, not a licensed therapist or financial/legal advisor. In a crisis, call or text 988.</p>
     </div>
-    <div class="onboard-step" id="step-name">
-      <h1 style="font-size:22px;">What should I call you?</h1>
-      <p class="tagline" style="margin-bottom:16px;">Your name and conversations are saved on this device so Buddy remembers you each time.</p>
-      <input type="text" id="name-input" class="name-input" placeholder="Your first name" maxlength="40" autocomplete="off"/>
-      <button class="btn-primary" id="continue-btn" onclick="submitName()" disabled>Continue</button>
-      <div class="coming-soon-box"><b>Coming in v3:</b> Full email/password accounts with cross-device sync, powered by Supabase. For now, your data lives on this device.</div>
+    <div class="onboard-step" id="step-auth">
+      <h1 style="font-size:22px;" id="auth-title">Welcome back</h1>
+      <p class="tagline" style="margin-bottom:16px;" id="auth-tagline">Log in to pick up right where you left off.</p>
+      <input type="email" id="auth-email" class="name-input" placeholder="Email" autocomplete="email"/>
+      <input type="password" id="auth-password" class="name-input" placeholder="Password" autocomplete="current-password"/>
+      <p id="auth-error" style="color:#B05040;font-size:12.5px;margin:-6px 0 12px;display:none;"></p>
+      <button class="btn-primary" id="auth-submit-btn" onclick="handleAuthSubmit()">Log in</button>
+      <p class="onboard-foot" style="margin-top:14px;">
+        <span id="auth-switch-text">New here?</span>
+        <a onclick="toggleAuthMode()" style="color:var(--sage-dark);text-decoration:underline;cursor:pointer;font-weight:600;">Create an account</a>
+      </p>
     </div>
   </div>
 </div>
@@ -427,6 +432,7 @@ const BEATITUDES = [
 
 /* ── State ── */
 let state = {
+  userId:null,
   name:null, profileKey:null, historyKey:null,
   conversationId:null,
   category:"general",
@@ -469,29 +475,40 @@ const CRISIS_RE=[
 ];
 const isCrisis = t => CRISIS_RE.some(r=>r.test(t));
 
-/* ── localStorage helpers ── */
-const lsGet = k => { try{ const v=localStorage.getItem(k); return v?JSON.parse(v):null; }catch(e){ return null; } };
-const lsSet = (k,v) => { try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} };
-const saveProfile = () => lsSet(state.profileKey, state.profile);
-const saveHistory = () => lsSet(state.historyKey,  state.history);
-
+/* ── Supabase persistence helpers ── */
+async function saveProfile(){
+  if(!state.userId) return;
+  await sb.from("profiles").update({
+    last_seen: state.profile.lastSeen,
+    session_count: state.profile.sessionCount,
+    memory_facts: state.profile.memoryFacts,
+    category_notes: state.profile.categoryNotes
+  }).eq("user_id", state.userId);
+}
+async function saveConversation(convo){
+  if(!state.userId) return;
+  await sb.from("conversations").upsert({
+    id: convo.id, user_id: state.userId, title: convo.title,
+    category: convo.category, updated_at: convo.updatedAt, messages: convo.messages
+  });
+}
 /* ── History CRUD ── */
-function createConvo(category, firstMsg){
+async function createConvo(category, firstMsg){
   const title = firstMsg.trim().slice(0,65)+(firstMsg.length>65?"…":"");
   const c = {id:makeId(), title, category, updatedAt:new Date().toISOString(), messages:[]};
   state.history.unshift(c);
   if(state.history.length>30) state.history=state.history.slice(0,30);
   state.conversationId = c.id;
-  saveHistory();
+  await saveConversation(c);
 }
 const getActiveConvo = () => state.history.find(c=>c.id===state.conversationId)||null;
-function appendToHistory(role,content,sources=[]){
+async function appendToHistory(role,content,sources=[]){
   const c=getActiveConvo(); if(!c) return;
   c.messages.push({role,content,sources,ts:new Date().toISOString()});
   if(c.messages.length>100) c.messages=c.messages.slice(-100);
   c.updatedAt=new Date().toISOString();
   state.history.sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt));
-  saveHistory(); renderHistoryList();
+  await saveConversation(c); renderHistoryList();
 }
 
 function startNewConversation(){
@@ -512,11 +529,12 @@ function resumeConversation(id){
   });
   scrollBot(); renderHistoryList(); closeDrawer();
 }
-function confirmDeleteConvo(id){
+async function confirmDeleteConvo(id){
   if(!confirm("Delete this conversation?")) return;
   state.history=state.history.filter(c=>c.id!==id);
   if(state.conversationId===id){ state.conversationId=null; state.conversation=[]; document.getElementById("conversation").innerHTML=""; }
-  saveHistory(); renderHistoryList();
+  if(state.userId) await sb.from("conversations").delete().eq("id",id).eq("user_id",state.userId);
+  renderHistoryList();
 }
 
 /* ── Topic routing (Haiku — fast & cheap) ── */
@@ -552,35 +570,73 @@ function goToStep(s){
   document.getElementById("step-"+s).classList.add("active");
   if(s==="name") setTimeout(()=>document.getElementById("name-input").focus(),200);
 }
-document.getElementById("name-input").addEventListener("input",e=>{
-  document.getElementById("continue-btn").disabled=!e.target.value.trim();
-});
-document.getElementById("name-input").addEventListener("keydown",e=>{
-  if(e.key==="Enter"&&e.target.value.trim()) submitName();
-});
-async function submitName(){
-  const raw=document.getElementById("name-input").value.trim(); if(!raw) return;
-  state.name=raw;
-  const slug=raw.toLowerCase().replace(/[^a-z0-9]/g,"_").slice(0,50);
-  state.profileKey="buddyai_profile:"+slug;
-  state.historyKey ="buddyai_history:"+slug;
-  const saved=lsGet(state.profileKey);
-  const isReturning=!!saved;
-  if(saved){ state.profile=saved; }
-  state.history=lsGet(state.historyKey)||[];
-  const now=new Date().toISOString();
-  if(!state.profile.firstMet) state.profile.firstMet=now;
-  state.profile.lastSeen=now;
-  state.profile.sessionCount=(state.profile.sessionCount||0)+1;
-  if(!state.profile.memoryFacts)   state.profile.memoryFacts=[];
-  if(!state.profile.categoryNotes) state.profile.categoryNotes={};
-  saveProfile();
+let authMode = "login";
+function toggleAuthMode(){
+  authMode = authMode==="login" ? "signup" : "login";
+  document.getElementById("auth-title").textContent = authMode==="login" ? "Welcome back" : "Create your account";
+  document.getElementById("auth-tagline").textContent = authMode==="login"
+    ? "Log in to pick up right where you left off."
+    : "Your conversations and profile will follow you to any device.";
+  document.getElementById("auth-submit-btn").textContent = authMode==="login" ? "Log in" : "Sign up";
+  document.getElementById("auth-switch-text").textContent = authMode==="login" ? "New here?" : "Already have an account?";
+  document.querySelector("#step-auth .onboard-foot a").textContent = authMode==="login" ? "Create an account" : "Log in";
+  document.getElementById("auth-error").style.display = "none";
+}
+function showAuthError(msg){
+  const e=document.getElementById("auth-error");
+  e.textContent = msg; e.style.display = "block";
+}
+async function handleAuthSubmit(){
+  const email = document.getElementById("auth-email").value.trim();
+  const password = document.getElementById("auth-password").value;
+  if(!email || !password){ showAuthError("Enter both an email and a password."); return; }
+  const btn = document.getElementById("auth-submit-btn");
+  btn.disabled = true;
+  if(authMode==="login") await logIn(email, password);
+  else await signUp(email, password);
+  btn.disabled = false;
+}
+async function signUp(email, password){
+  const { data, error } = await sb.auth.signUp({ email, password });
+  if(error){ showAuthError(error.message); return; }
+  if(!data.session){ showAuthError("Check your email to confirm your account, then log in."); return; }
+  await afterAuth(data.user);
+}
+async function logIn(email, password){
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if(error){ showAuthError(error.message); return; }
+  await afterAuth(data.user);
+}
+function logOut(){
+  sb.auth.signOut();
+  location.reload();
+}
+async function afterAuth(user){
+  state.userId = user.id;
+  state.name = (user.email||"").split("@")[0];
+  let { data: profile } = await sb.from("profiles").select("*").eq("user_id",user.id).single();
+  const isReturning = !!profile;
+  if(!profile){
+    const now = new Date().toISOString();
+    await sb.from("profiles").insert({ user_id:user.id, first_met:now, last_seen:now, session_count:1 });
+    profile = { first_met:now, last_seen:now, session_count:1, memory_facts:[], category_notes:{} };
+  } else {
+    profile.session_count = (profile.session_count||0)+1;
+    profile.last_seen = new Date().toISOString();
+  }
+  state.profile = {
+    firstMet: profile.first_met, lastSeen: profile.last_seen,
+    sessionCount: profile.session_count, memoryFacts: profile.memory_facts||[],
+    categoryNotes: profile.category_notes||{}
+  };
+  await saveProfile();
+  const { data: convos } = await sb.from("conversations").select("*").eq("user_id",user.id).order("updated_at",{ascending:false});
+  state.history = (convos||[]).map(c=>({ id:c.id, title:c.title, category:c.category, updatedAt:c.updated_at, messages:c.messages||[] }));
   document.getElementById("onboarding").style.display="none";
   buildNav();
-  selectCategory("general",true,isReturning);
+  selectCategory("general", true, isReturning);
   if(!getApiKey()) openKeyModal();
 }
-
 /* ── Nav ── */
 function navMarkup(){
   const items=CATEGORIES.map(c=>`
@@ -606,7 +662,7 @@ function navMarkup(){
       </div>
       <a class="side-link" onclick="openProfile()">👤 What Buddy knows about me</a>
       <a class="side-gear" onclick="openKeyModal()">⚙ API key settings</a>
-      <a class="side-link" onclick="switchUser()">Not ${escapeHtml(state.name)}? Switch person</a>
+      <a class="side-link" onclick="logOut()">Log out</a>
     </div>`;
 }
 function buildNav(){
@@ -635,14 +691,7 @@ function renderHistoryList(){
 }
 function openDrawer(){ document.getElementById("drawer").classList.add("open"); document.getElementById("drawer-overlay").classList.add("open"); }
 function closeDrawer(){ document.getElementById("drawer").classList.remove("open"); document.getElementById("drawer-overlay").classList.remove("open"); }
-function switchUser(){
-  state={name:null,profileKey:null,historyKey:null,conversationId:null,category:"general",conversation:[],history:[],profile:{firstMet:null,lastSeen:null,sessionCount:0,memoryFacts:[],categoryNotes:{}},sending:false};
-  document.getElementById("conversation").innerHTML="";
-  document.getElementById("name-input").value="";
-  document.getElementById("continue-btn").disabled=true;
-  document.getElementById("onboarding").style.display="flex";
-  goToStep("welcome"); closeDrawer();
-}
+
 
 /* ── Profile panel ── */
 function openProfile(){ renderProfilePanel(); document.getElementById("profile-overlay").classList.add("open"); closeDrawer(); }
@@ -676,28 +725,26 @@ function renderProfilePanel(){
       </div>`;
     }).join("");
 }
-function editFact(i){
+async function editFact(i){
   const f=state.profile.memoryFacts[i];
-  // Normalize: guarantee this entry is an object before we touch .text
   if(typeof f==="string"){
     state.profile.memoryFacts[i]={text:f,category:"general",addedAt:new Date().toISOString()};
   }
   const cur=state.profile.memoryFacts[i].text;
   const t=prompt("Edit this fact:",cur); if(!t||!t.trim()) return;
   state.profile.memoryFacts[i].text=t.trim();
-  saveProfile(); renderProfilePanel();
+  await saveProfile(); renderProfilePanel();
 }
-function delFact(i){
+async function delFact(i){
   if(!confirm("Remove this from what Buddy knows?")) return;
   state.profile.memoryFacts.splice(i,1);
-  saveProfile(); renderProfilePanel();
+  await saveProfile(); renderProfilePanel();
 }
-function addManualFact(){
+async function addManualFact(){
   const t=prompt("What should Buddy know about you?"); if(!t||!t.trim()) return;
   state.profile.memoryFacts.push({text:t.trim(),category:"general",addedAt:new Date().toISOString()});
-  saveProfile(); renderProfilePanel();
+  await saveProfile(); renderProfilePanel();
 }
-
 /* ── Category UI ── */
 function buildCatRail(){
   document.getElementById("cat-rail").innerHTML=CATEGORIES.map(c=>`
@@ -810,8 +857,8 @@ async function sendMessage(){
       false,[]
     );
     state.conversation.push({role:"user",content:text});
-    if(!state.conversationId) createConvo(state.category,text);
-    appendToHistory("user",text);
+    if(!state.conversationId) await createConvo(state.category,text);
+    await appendToHistory("user",text);
     return; // Don't call the API on a crisis — in-page message is enough to start
   }
 
@@ -826,8 +873,8 @@ async function sendMessage(){
 
   addMessage("user",text);
   state.conversation.push({role:"user",content:text});
-  if(!state.conversationId){ createConvo(state.category,text); }
-  appendToHistory("user",text);
+  if(!state.conversationId){ await createConvo(state.category,text); }
+  await appendToHistory("user",text);
   callBuddy();
 }
 
@@ -904,7 +951,7 @@ async function callBuddy(){
     if(!display) display="Sorry, I lost my train of thought — could you say that again?";
     addMessage("assistant",display,false,sources);
     state.conversation.push({role:"assistant",content:fullText});
-    appendToHistory("assistant",display,sources);
+    await appendToHistory("assistant",display,sources);
     /* Update user model */
     if(memo){
       if(Array.isArray(memo.new_facts)){
@@ -918,7 +965,7 @@ async function callBuddy(){
         if(!state.profile.categoryNotes) state.profile.categoryNotes={};
         state.profile.categoryNotes[state.category]=memo.category_note;
       }
-      saveProfile();
+      await saveProfile();
     }
   }catch(err){
     console.error(err); hideTyping(); showErrorBubble("I'm having trouble connecting right now.");
@@ -929,16 +976,21 @@ async function callBuddy(){
 
 /* ── Expose to HTML onclick attributes ── */
 window.toggleBeatitudes=toggleBeatitudes;
-window.goToStep=goToStep; window.submitName=submitName;
+window.goToStep=goToStep;
+window.handleAuthSubmit=handleAuthSubmit; window.toggleAuthMode=toggleAuthMode;
 window.sendMessage=sendMessage; window.retryLast=retryLast;
 window.selectCategory=selectCategory;
 window.startNewConversation=startNewConversation;
 window.resumeConversation=resumeConversation;
 window.confirmDeleteConvo=confirmDeleteConvo;
-window.openDrawer=openDrawer; window.closeDrawer=closeDrawer; window.switchUser=switchUser;
+window.openDrawer=openDrawer; window.closeDrawer=closeDrawer; window.logOut=logOut;
 window.openProfile=openProfile; window.closeProfile=closeProfile;
 window.editFact=editFact; window.delFact=delFact; window.addManualFact=addManualFact;
 window.openKeyModal=openKeyModal; window.closeKeyModal=closeKeyModal; window.saveApiKeyFromInput=saveApiKeyFromInput;
+
+sb.auth.getSession().then(({data:{session}})=>{
+  if(session){ afterAuth(session.user); }
+});
 </script>
 </body>
 </html>
