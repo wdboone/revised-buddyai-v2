@@ -338,7 +338,7 @@ a{color:inherit;}
       <button class="profile-close" onclick="closeProfile()">✕</button>
     </div>
     <div class="profile-body">
-      <div class="profile-upgrade"><b>Saved on this device.</b> Cross-device sync is coming in v3 when Supabase accounts are added.</div>
+      <div class="profile-upgrade"><b>Synced to your account.</b> Your facts and conversations follow you to any device you log in from.</div>
       <p class="profile-sec-title">Facts Buddy has learned</p>
       <div id="profile-facts"></div>
       <button class="profile-add-btn" onclick="addManualFact()">+ Add something Buddy should know</button>
@@ -653,7 +653,7 @@ function navMarkup(){
     <hr class="side-divider"/>
     <div class="side-label">Recent conversations<button class="new-chat-btn" onclick="startNewConversation()">+ New</button></div>
     <div class="history-list"></div>
-    <p class="device-note">💾 Saved on this device · Cross-device sync coming in v3</p>
+    <p class="device-note">☁️ Synced to your account</p>
     <div class="side-user">
       <div class="side-user-row">
         <div class="avatar-pill">${initials}</div>
@@ -883,6 +883,7 @@ async function sendMessage(){
 /* ── System prompt ── */
 function buildSystemPrompt(){
   const cat=CATEGORIES.find(c=>c.id===state.category);
+  const todayStr=new Date().toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
   const facts=(state.profile.memoryFacts||[]).length
     ?(state.profile.memoryFacts||[]).map(f=>"- "+(typeof f==="string"?f:f.text)).join("\n")
     :"(nothing yet)";
@@ -906,6 +907,8 @@ CRISIS PROTOCOL: If the user expresses suicidal ideation, self-harm, immediate d
 Ask gently whether they are safe right now. Do not continue with coaching topics until that question is addressed. Omit the <<<MEMO>>> block in a crisis response.
 
 GROUND YOURSELF IN THE WEB: This app's whole point is that Buddy's coaching is backed by real, current information from the web — not just your internal training. Use your web search tool proactively before giving substantive suggestions, techniques, facts, statistics, or resources. Target reputable sources: health systems, universities, government sites, well-known counseling or personal-finance organizations. You don't need to recite URLs — the app shows your sources automatically below your message — so reference what you found naturally and conversationally.
+
+TODAY'S ACTUAL DATE: ${todayStr}. Trust this over anything you find via search or recall from training — it is live from the user's device.
 
 CURRENT TOPIC AREA: ${cat.label} — ${cat.focus}
 
