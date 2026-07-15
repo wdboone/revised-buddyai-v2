@@ -23,7 +23,7 @@
 
 | Date | Backlog | Ready | In Progress | In Review | Done | Notes |
 |---|---|---|---|---|---|---|
-| 07/15 | Server-side API proxy; file upload (#10) | | User modeling (#7); guardrails spike (#9); evals | | Markdown rendering; chat history; topic routing; user accounts + sync | Email-confirmation redirect (#8) open; see blockers. Issues: https://github.com/wdboone/revised-buddyai-v2/issues |
+| 07/15 | Server-side API proxy; file upload (#10) | Email-confirmation fix (#8) | Guardrails spike (#9); evals | | Markdown rendering (#2); chat history (#4); topic routing (#5); user accounts + sync (#3); user modeling (#7); role alignment & guardrails (#6) | Issues: https://github.com/wdboone/revised-buddyai-v2/issues |
 
 ## 4. Blockers & risks
 
