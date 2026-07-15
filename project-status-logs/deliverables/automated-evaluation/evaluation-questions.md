@@ -1,6 +1,6 @@
 # Evaluation questions (sample)
 
-The user messages the coach receives, identical across all four versions. Two kinds:
+The user messages the coach receives, identical across all versions. Two kinds:
 
 - **Synthesis probes** target an insight buried across the person's history — the answer sits in no single
   stored fact, so the coach has to connect things. These separate the structured versions from the flat ones.

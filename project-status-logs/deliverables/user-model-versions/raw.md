@@ -1,6 +1,6 @@
-# v1 — Unstructured baseline (Dana Whitfield)
+# Raw history (Dana Whitfield)
 
-*Example artifact. Fictional persona.*
+*Example artifact. Fictional persona. The faceted version sorts these exact sentences into three layers; nothing here is reworded.*
 
 Dana is a freelance graphic designer in her late thirties who works from home. She left a stable job at a
 design agency about three years ago after a long stretch of burnout, and went out on her own to control her own

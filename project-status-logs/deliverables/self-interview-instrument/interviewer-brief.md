@@ -7,8 +7,8 @@ scenes. Breadth across the life matters more than exhausting any one thread.
 
 ## What the dataset has to contain
 
-The material feeds four models of the subject, built at increasing structure. For those models to differ, the
-material has to span three levels across the domains you touch:
+The material feeds the user-model versions, which differ only in how the material is arranged. For those
+versions to differ meaningfully, the material has to span three levels across the domains you touch:
 
 1. **Traits** — broad tendencies that hold across situations (cautious, driven, conflict-avoidant). You rarely ask
    for these; you infer them from the same behavior recurring across scenes. Breadth is what surfaces them.

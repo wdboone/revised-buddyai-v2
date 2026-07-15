@@ -1,7 +1,7 @@
 # Automated evaluation
 
-How the four user-model versions are compared. The setup is a controlled test: the coaching prompt and the
-questions are held identical across all four versions, and only the user-model context changes. Whatever
+How the user-model versions are compared. The setup is a controlled test: the coaching prompt and the
+questions are held identical across the versions, and only the user-model context changes. Whatever
 difference shows up in the coaching replies is attributable to the representation.
 
 ## How it runs

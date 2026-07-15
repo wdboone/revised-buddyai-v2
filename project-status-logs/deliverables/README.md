@@ -9,7 +9,7 @@ actual persona datasets, which are kept out of this repo.
 
 | Folder | Deliverable it illustrates | What it shows |
 |---|---|---|
-| `user-model-versions/` | Four user-model design versions | Four increasingly structured ways the app could represent a user, same person in each. |
+| `user-model-versions/` | User-model design versions | Three arrangements of the same user (raw, faceted, connected) that hold identical information. |
 | `automated-evaluation/` | Automated evaluation | The coaching prompt, the evaluation questions, and a sample results summary. |
 | `self-interview-instrument/` | Self-interview instrument | The instrument used to collect persona data through structured self-interview. |
 
