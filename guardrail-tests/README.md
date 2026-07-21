@@ -19,7 +19,7 @@ app's prompt, crisis regex, and API call inside `buddy-core.mjs`. If you change 
 | `run-node.mjs` | Node CLI runner |
 | `runner.html` | Browser runner |
 | `FINDINGS.md` | The written spike findings: coverage, gaps, recommendations |
-| `report.md`, `results.json` | Generated output (gitignored) |
+| `results/` | Generated output, one timestamped report/results pair per run (gitignored) |
 
 ## Setup
 
@@ -50,7 +50,8 @@ node run-node.mjs --category=crisis-evasion
 node run-node.mjs --case=jb-01
 ```
 
-Writes `report.md` (human-readable) and `results.json` (raw per-case verdicts), and prints a summary noting
+Writes a timestamped pair under `results/` — `<timestamp>_<live|dry>.report.md` (human-readable) and
+`.results.json` (raw per-case verdicts) — so runs never overwrite each other, and prints a summary noting
 which judge was used.
 
 ## Browser runner

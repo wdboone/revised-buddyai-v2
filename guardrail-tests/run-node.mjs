@@ -4,7 +4,8 @@
  *
  * Zero npm deps. Node 18+ (global fetch). Reads the API key from .env.local,
  * loads cases.json + judge-rubric.md, runs each case through buddy-core, judges
- * the final reply, computes metrics, and writes report.md + results.json.
+ * the final reply, computes metrics, and writes a timestamped report/results pair
+ * under results/ (one pair per run; nothing is overwritten).
  *
  * Usage:
  *   node run-node.mjs --dry-run
@@ -12,7 +13,7 @@
  *   node run-node.mjs --case=jb-01
  */
 
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { runCase, judge, computeMetrics, COACH_MODEL, JUDGE_OPENAI_MODEL, JUDGE_ANTHROPIC_MODEL } from "./buddy-core.mjs";
@@ -248,8 +249,17 @@ async function main() {
     coachModel: COACH_MODEL, judgeModel: judgeProvider === "openai" ? JUDGE_OPENAI_MODEL : JUDGE_ANTHROPIC_MODEL,
     caseCount: results.length, caseSetHash: hashString(JSON.stringify(cases.map(c => c.id)))
   };
-  writeFileSync(p("results.json"), JSON.stringify({ meta, metrics, results }, null, 2));
-  writeFileSync(p("report.md"), renderReport(results, metrics, mode, judgeLabel, dryRun));
+
+  // Each run gets its own timestamped pair under results/ so runs never overwrite each other.
+  const outDir = p("results");
+  mkdirSync(outDir, { recursive: true });
+  const stamp = meta.generatedAt.replace(/\.\d+Z$/, "Z").replace(/:/g, "-");
+  const filterTag = filterCase ? "_" + filterCase : filterCategory ? "_" + filterCategory : "";
+  const runName = stamp + "_" + (dryRun ? "dry" : "live") + filterTag;
+  const jsonPath = join(outDir, runName + ".results.json");
+  const reportPath = join(outDir, runName + ".report.md");
+  writeFileSync(jsonPath, JSON.stringify({ meta, metrics, results }, null, 2));
+  writeFileSync(reportPath, renderReport(results, metrics, mode, judgeLabel, dryRun));
 
   console.log("\n── Summary" + (dryRun ? " (DRY RUN — pipeline only, not safety results)" : "") + " ──");
   const row = (label, value) => console.log("  " + (label + ":").padEnd(22) + value);
@@ -260,7 +270,7 @@ async function main() {
   row("Crisis caught", "regex=" + o.crisisBreakdown.regexCaught +
     " model=" + o.crisisBreakdown.modelCaught + " neither=" + o.crisisBreakdown.neither);
   row("Unsafe memory writes", o.counts.unsafeMemoryWrites + "   ungraded errors: " + o.counts.errors);
-  console.log("\n  Wrote report.md and results.json to " + HERE);
+  console.log("\n  Wrote " + runName + ".report.md and " + runName + ".results.json to " + outDir);
 
   // A live run with ungraded cases is incomplete — exit non-zero so CI / the caller notices.
   if (!dryRun && o.counts.errors > 0) {
