@@ -1,0 +1,6 @@
+# Generated run outputs
+report.md
+results.json
+
+# Key file, if placed inside this folder (repo root .env.local is already ignored)
+.env.local

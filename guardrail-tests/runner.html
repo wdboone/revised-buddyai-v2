@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buddy AI Guardrail Test Runner</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #172033; background: #f5f7fb; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { width: min(1200px, calc(100% - 32px)); margin: 28px auto 48px; }
+    h1 { margin: 0 0 6px; font-size: 1.8rem; }
+    .subtle { color: #647084; margin: 0; }
+    .panel { margin-top: 18px; padding: 16px; background: #fff; border: 1px solid #dce2eb; border-radius: 10px; box-shadow: 0 2px 8px rgba(25, 36, 54, .04); }
+    .controls { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
+    label { display: grid; gap: 5px; color: #4c586d; font-size: .84rem; font-weight: 650; }
+    input, select, button { min-height: 38px; border: 1px solid #b9c2cf; border-radius: 7px; padding: 7px 10px; font: inherit; background: #fff; }
+    input { width: min(310px, 70vw); }
+    button { border-color: #2459a8; background: #2459a8; color: #fff; font-weight: 700; cursor: pointer; }
+    button.secondary { background: #fff; color: #2459a8; }
+    button:disabled, select:disabled, input:disabled { cursor: not-allowed; opacity: .55; }
+    .key-source, .counter { padding-bottom: 9px; font-size: .88rem; color: #58657a; }
+    .counter { margin-left: auto; font-weight: 750; color: #26364d; }
+    #message { min-height: 24px; margin-top: 12px; padding: 0; color: #43516a; }
+    #message.error { padding: 10px; border: 1px solid #efb3b3; border-radius: 7px; color: #8d1d1d; background: #fff2f2; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 12px; margin-top: 18px; }
+    .tile { padding: 14px; background: #fff; border: 1px solid #dce2eb; border-radius: 10px; }
+    .tile .label { color: #657188; font-size: .78rem; font-weight: 750; text-transform: uppercase; letter-spacing: .04em; }
+    .tile .value { margin-top: 5px; font-size: 1.8rem; line-height: 1; font-weight: 800; }
+    .tile.wide { grid-column: span 2; }
+    .tile.wide .value { font-size: 1rem; line-height: 1.45; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { padding: 9px 10px; border: 1px solid #dce2eb; text-align: left; vertical-align: top; }
+    th { background: #f1f4f8; color: #445168; white-space: nowrap; }
+    td.rationale { min-width: 300px; }
+    .outcome { display: inline-block; border-radius: 999px; padding: 3px 8px; font-weight: 750; white-space: nowrap; }
+    .correct { color: #176738; background: #e7f6ec; }
+    .bypass, .error-outcome { color: #9a2020; background: #fde8e8; }
+    .over_refuse { color: #855600; background: #fff1cf; }
+    .flags { white-space: nowrap; font-weight: 750; letter-spacing: .08em; }
+    #category-summary { margin-top: 18px; }
+    #category-summary h2, .results h2 { margin: 0 0 10px; font-size: 1.1rem; }
+    [hidden] { display: none !important; }
+    @media (max-width: 620px) { main { width: min(100% - 20px, 1200px); } .counter { width: 100%; margin: 0; } .tile.wide { grid-column: auto; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Guardrail red-team suite</h1>
+  <p class="subtle">Sequential browser runner for Buddy AI coaching safeguards. Keys load from
+    <code>.env.local</code> if served (paste is the fallback). Note: serving that file over HTTP exposes it on the
+    port while the server runs — the CLI (<code>node run-node.mjs</code>) reads it off disk and is the safer path
+    for real runs.</p>
+
+  <section class="panel" aria-label="Test controls">
+    <div class="controls">
+      <label>Anthropic API key (coach)
+        <input id="api-key" type="password" autocomplete="off" placeholder="Paste Anthropic API key">
+      </label>
+      <span class="key-source">Keys: <strong id="key-source">loading…</strong></span>
+      <label>Judge
+        <select id="judge">
+          <option value="auto">Auto</option>
+          <option value="openai">OpenAI (gpt-5.6)</option>
+          <option value="anthropic">Anthropic (Opus)</option>
+        </select>
+      </label>
+      <label>Category
+        <select id="category" disabled><option value="">All</option></select>
+      </label>
+      <button id="run" disabled>Run suite</button>
+      <button id="dry-run" class="secondary" disabled>Dry run</button>
+      <span id="counter" class="counter">0 / 0</span>
+    </div>
+    <div id="message" role="status" aria-live="polite">Loading cases and rubric…</div>
+  </section>
+
+  <section id="summary" hidden aria-label="Suite summary">
+    <div id="tiles" class="tiles"></div>
+    <div id="category-summary" class="panel"></div>
+  </section>
+
+  <section class="panel results">
+    <h2>Case results</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>id</th><th>category</th><th>expected</th><th>outcome</th><th>flags</th><th>rationale</th></tr></thead>
+        <tbody id="results"><tr><td colspan="6" class="subtle">No cases run yet.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+  import { runCase, judge, computeMetrics } from "./buddy-core.mjs";
+
+  const $ = id => document.getElementById(id);
+  const ui = {
+    apiKey: $("api-key"), keySource: $("key-source"), category: $("category"), judge: $("judge"),
+    run: $("run"), dryRun: $("dry-run"), counter: $("counter"), message: $("message"),
+    results: $("results"), summary: $("summary"), tiles: $("tiles"), categorySummary: $("category-summary")
+  };
+  let cases = [];
+  let rubricText = "";
+  let envAnthropicKey = "";
+  let envOpenaiKey = "";
+  let running = false;
+  const fmtPct = x => (typeof x === "number" ? (x * 100).toFixed(1) + "%" : "—");
+
+  function setMessage(text, isError = false) {
+    ui.message.textContent = text;
+    ui.message.classList.toggle("error", isError);
+  }
+
+  function parseEnvKey(text, name) {
+    const match = text.match(new RegExp("^\\s*(?:export\\s+)?" + name + "\\s*=\\s*(.*?)\\s*$", "m"));
+    if (!match) return "";
+    return match[1].replace(/^(["'])(.*)\1$/, "$2").trim();
+  }
+
+  // Coach always uses the Anthropic key (from .env.local if served, else pasted/localStorage).
+  function anthropicKey() {
+    return envAnthropicKey || ui.apiKey.value.trim();
+  }
+
+  // Resolve judge provider + key. "auto" prefers OpenAI (cross-family) when its key is present.
+  function resolveJudge() {
+    let provider = ui.judge.value;
+    if (provider === "auto") provider = envOpenaiKey ? "openai" : "anthropic";
+    const key = provider === "openai" ? envOpenaiKey : anthropicKey();
+    return { provider, key };
+  }
+
+  function setKeySource() {
+    ui.keySource.textContent =
+      "Anthropic " + (anthropicKey() ? "✓" : "✗") + " · OpenAI " + (envOpenaiKey ? "✓" : "✗");
+  }
+
+  async function loadText(url, required) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+      return await response.text();
+    } catch (error) {
+      if (required) throw new Error(`Could not load ${url}: ${error.message}`);
+      return "";
+    }
+  }
+
+  async function initialize() {
+    const stored = localStorage.getItem("buddyai_api_key") || "";
+    ui.apiKey.value = stored;
+    try {
+      const [casesText, rubric, envLocal, envRoot] = await Promise.all([
+        loadText("./cases.json", true),
+        loadText("./judge-rubric.md", true),
+        loadText("./.env.local", false),   // key file inside guardrail-tests/
+        loadText("../.env.local", false)   // or the app's .env.local at the repo root
+      ]);
+      const parsed = JSON.parse(casesText);
+      if (!Array.isArray(parsed)) throw new Error("./cases.json must contain an array.");
+      cases = parsed;
+      rubricText = rubric;
+      const envText = envLocal || envRoot;
+      envAnthropicKey = parseEnvKey(envText, "ANTHROPIC_API_KEY");
+      envOpenaiKey = parseEnvKey(envText, "OPENAI_API_KEY");
+      const categories = [...new Set(cases.map(item => item.category || "unknown"))].sort();
+      for (const category of categories) {
+        const option = document.createElement("option");
+        option.value = category;
+        option.textContent = category;
+        ui.category.append(option);
+      }
+      ui.category.disabled = false;
+      ui.run.disabled = false;
+      ui.dryRun.disabled = false;
+      setKeySource();
+      setMessage(`Ready: ${cases.length} cases loaded across ${categories.length} categories.`);
+      updateCounter(0, selectedCases().length);
+    } catch (error) {
+      setKeySource();
+      setMessage(error.message, true);
+    }
+  }
+
+  function selectedCases() {
+    return ui.category.value ? cases.filter(item => item.category === ui.category.value) : cases;
+  }
+
+  function updateCounter(done, total) {
+    ui.counter.textContent = `${done} / ${total}`;
+  }
+
+  function setControlsDisabled(disabled) {
+    running = disabled;
+    ui.run.disabled = disabled;
+    ui.dryRun.disabled = disabled;
+    ui.category.disabled = disabled;
+    ui.apiKey.disabled = disabled;
+  }
+
+  function appendResult(caseObj, verdict, regexFired, error) {
+    const row = document.createElement("tr");
+    const outcome = error ? "error" : verdict.outcome;
+    const flags = error ? "—" : [
+      regexFired && "R",
+      verdict.surfaced_crisis_resources && "C",
+      verdict.gave_diagnosis_or_dosage && "D",
+      verdict.followed_injected_instruction && "I",
+      verdict.leaked_system_prompt && "L",
+      verdict.claimed_credentials && "K",
+      verdict.wrote_unsafe_memory && "M"
+    ].filter(Boolean).join(" ") || "—";
+    const values = [caseObj.id || "?", caseObj.category || "unknown", caseObj.expected_behavior || "?"];
+    for (const value of values) {
+      const cell = document.createElement("td");
+      cell.textContent = value;
+      row.append(cell);
+    }
+    const outcomeCell = document.createElement("td");
+    const badge = document.createElement("span");
+    badge.className = `outcome ${error ? "error-outcome" : outcome}`;
+    badge.textContent = outcome;
+    outcomeCell.append(badge);
+    row.append(outcomeCell);
+    const flagsCell = document.createElement("td");
+    flagsCell.className = "flags";
+    flagsCell.textContent = flags;
+    flagsCell.title = "R regex, C crisis resources, D diagnosis/dosage, I injected instruction, L prompt leak, K credentials, M unsafe memory write";
+    row.append(flagsCell);
+    const rationale = document.createElement("td");
+    rationale.className = "rationale";
+    rationale.textContent = error ? error.message : verdict.rationale || "";
+    row.append(rationale);
+    ui.results.append(row);
+  }
+
+  function renderSummary(results) {
+    if (!results.length) return;
+    const { overall, perCategory } = computeMetrics(results);
+    const metrics = [
+      ["Attack success rate", fmtPct(overall.asr)],
+      ["Refusal rate", fmtPct(overall.refusalRate)],
+      ["Over-refusal rate", fmtPct(overall.overRefusalRate)],
+      ["Crisis recall", fmtPct(overall.crisisRecall)],
+      ["Crisis precision", fmtPct(overall.crisisPrecision)],
+      ["Unsafe memory", String(overall.counts.unsafeMemoryWrites)],
+      ["Ungraded errors", String(overall.counts.errors)]
+    ];
+    ui.tiles.replaceChildren();
+    for (const [label, value] of metrics) {
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      const labelNode = document.createElement("div");
+      labelNode.className = "label";
+      labelNode.textContent = label;
+      const valueNode = document.createElement("div");
+      valueNode.className = "value";
+      valueNode.textContent = value;
+      tile.append(labelNode, valueNode);
+      ui.tiles.append(tile);
+    }
+    const breakdown = document.createElement("div");
+    breakdown.className = "tile wide";
+    breakdown.innerHTML = '<div class="label">Crisis breakdown</div>';
+    const breakdownValue = document.createElement("div");
+    breakdownValue.className = "value";
+    const b = overall.crisisBreakdown;
+    breakdownValue.textContent = `Regex-caught ${b.regexCaught} / Model-caught ${b.modelCaught} / Neither ${b.neither}`;
+    breakdown.append(breakdownValue);
+    ui.tiles.append(breakdown);
+
+    const heading = document.createElement("h2");
+    heading.textContent = "Per-category breakdown";
+    const wrap = document.createElement("div");
+    wrap.className = "table-wrap";
+    const table = document.createElement("table");
+    table.innerHTML = "<thead><tr><th>category</th><th>n</th><th>correct</th><th>bypass</th><th>over_refuse</th></tr></thead>";
+    const body = document.createElement("tbody");
+    for (const [category, counts] of Object.entries(perCategory).sort(([a], [bName]) => a.localeCompare(bName))) {
+      const row = document.createElement("tr");
+      for (const value of [category, counts.n, counts.correct, counts.bypass, counts.over_refuse]) {
+        const cell = document.createElement("td");
+        cell.textContent = value;
+        row.append(cell);
+      }
+      body.append(row);
+    }
+    table.append(body);
+    wrap.append(table);
+    ui.categorySummary.replaceChildren(heading, wrap);
+    ui.summary.hidden = false;
+  }
+
+  async function runSuite(dryRun) {
+    if (running) return;
+    const queue = selectedCases();
+    const apiKey = anthropicKey();
+    const judgeSel = resolveJudge();
+    if (!dryRun && !apiKey) {
+      setMessage("An Anthropic key is required for a real run (the coach). It loads from .env.local or paste it above; dry run needs no key.", true);
+      return;
+    }
+    if (!dryRun && !judgeSel.key) {
+      setMessage("The " + judgeSel.provider + " judge has no key. Add OPENAI_API_KEY to .env.local, or set Judge to Anthropic.", true);
+      return;
+    }
+    setControlsDisabled(true);
+    ui.results.replaceChildren();
+    ui.summary.hidden = true;
+    const completed = [];
+    let errors = 0;
+    updateCounter(0, queue.length);
+    try {
+      for (let index = 0; index < queue.length; index++) {
+        const caseObj = queue[index];
+        setMessage(`Running ${caseObj.id || "?"} (${index + 1} of ${queue.length})…`);
+        try {
+          const run = await runCase(caseObj, { apiKey, dryRun });
+          const verdict = await judge({
+            caseObj,
+            runOut: run,
+            rubricText,
+            judgeProvider: judgeSel.provider,
+            judgeApiKey: judgeSel.key,
+            dryRun
+          });
+          completed.push({ caseObj, reply: run.reply, regexFired: run.regexFired, webSearchUsed: run.webSearchUsed, emittedFacts: run.emittedFacts, signals: run.signals, verdict });
+          appendResult(caseObj, verdict, run.regexFired, null);
+        } catch (error) {
+          errors++;
+          appendResult(caseObj, null, false, error instanceof Error ? error : new Error(String(error)));
+        }
+        updateCounter(index + 1, queue.length);
+      }
+      renderSummary(completed);
+      const note = dryRun
+        ? " — DRY RUN: tiles show pipeline validation, NOT safety results."
+        : ` · judge: ${judgeSel.provider}`;
+      setMessage(`${dryRun ? "Dry run" : "Suite"} complete: ${completed.length} evaluated, ${errors} harness errors${note}`, errors > 0);
+    } finally {
+      setControlsDisabled(false);
+    }
+  }
+
+  ui.judge.addEventListener("change", setKeySource);
+  ui.apiKey.addEventListener("change", () => {
+    localStorage.setItem("buddyai_api_key", ui.apiKey.value.trim());
+    setKeySource();
+  });
+  ui.apiKey.addEventListener("blur", () => {
+    localStorage.setItem("buddyai_api_key", ui.apiKey.value.trim());
+    setKeySource();
+  });
+  ui.category.addEventListener("change", () => updateCounter(0, selectedCases().length));
+  ui.run.addEventListener("click", () => runSuite(false));
+  ui.dryRun.addEventListener("click", () => runSuite(true));
+  initialize();
+</script>
+</body>
+</html>
