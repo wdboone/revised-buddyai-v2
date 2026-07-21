@@ -601,7 +601,11 @@ async function handleAuthSubmit(){
   btn.disabled = false;
 }
 async function signUp(email, password){
-  const { data, error } = await sb.auth.signUp({ email, password });
+  const { data, error } = await sb.auth.signUp({
+  email,
+  password,
+  options: { emailRedirectTo: "https://wdboone.github.io/revised-buddyai-v2/" }
+});
   if(error){ showAuthError(error.message); return; }
   if(!data.session){ showAuthError("Check your email to confirm your account, then log in."); return; }
   await afterAuth(data.user);
