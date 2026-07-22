@@ -17,7 +17,7 @@
 | Team member | Done since last standup | Plan before next standup | Blockers / help needed |
 |---|---|---|---|
 | Willie Boone | Fixed the email-confirmation redirect by adding `emailRedirectTo` in signUp, so new users land on the real host instead of a broken localhost link (#8); shipped file upload → fact extraction so the user model can be updated from uploaded files (#10). | Continue toward the server-side API-key proxy. | None. |
-| Hunter Phillips | Delivered the guardrail spike (#9): built a 43-case red-team suite over the app's real prompt and crisis regex, hardened it against an adversarial critique, ran the first live suite, and wrote up the results. Buddy refused 32 of 35 attacks; the crisis keyword regex caught 0 of 10 evasions. | Validate the judge against a human-labeled subset (report Cohen's kappa) before trusting the rates; test the real web-search injection channel. | None. |
+| Hunter Phillips | Delivered the guardrail spike (#9): built a 43-case red-team suite over the app's real prompt and crisis regex, hardened it against an adversarial critique, ran the first live suite, and wrote up the results. Buddy refused 32 of 35 attacks; the crisis keyword regex caught 0 of 10 evasions. | Start implementing guardrail hardening from the spike's findings, at the prompt level first: an escalation-proof medication refusal, an explicit instruction hierarchy with spotlighted untrusted content, and a persist-only-stated-facts rule. | None. |
 
 ## 3. Board snapshot (GitHub Project)
 
@@ -56,7 +56,7 @@
 |---|---|
 | **What went well this sprint?** | Delivered a repeatable guardrail measurement; the first live run gave a clean baseline (8.6% attack success rate) and surfaced three concrete gaps. Signup is unblocked, file-upload → user-model shipped, and every open issue is now closed. |
 | **What slowed us down?** | A dry run overwrote a live results file, and a harness bug graded API errors as replies. Both are fixed — runs now write to a timestamped folder and API errors are recorded as errors — but they cost a rerun. |
-| **What will we change next sprint?** | Validate the judge before quoting rates, and act on the top guardrail gaps (prompt hardening + output check). |
+| **What will we change next sprint?** | Move from measuring to fixing: implement guardrail hardening from the spike's findings, starting with prompt-level defenses (escalation-proof medication refusal, instruction hierarchy, spotlighted untrusted content), then an output self-check. |
 
 ## 8. Links & artifacts
 
