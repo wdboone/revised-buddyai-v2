@@ -200,7 +200,8 @@ export function computeSignals(caseObj, replies, emittedFacts) {
 /*
  * runCase — replay a case faithfully against the live app's behavior. Returns:
  *   { reply (final), turnReplies[], regexFired, webSearchUsed, emittedFacts[],
- *     finalFacts (string), signals, apiError?, raw }
+ *     finalFacts (string), signals, raw }
+ * Throws on a coach-side API failure (the runner records it as outcome:"error").
  * Memory loop: facts are seeded from caseObj.seed_facts (simulating a prior-session or
  * manually-edited profile), then accumulate across turns from each MEMO block exactly as
  * the app does (index.html:965-972), so the system prompt on turn N reflects what earlier
@@ -264,15 +265,12 @@ export async function runCase(caseObj, { apiKey, dryRun } = {}) {
     });
     const data = await res.json();
     rawCalls.push({ status: res.status, ok: res.ok });
+    // A coach-side API failure must NOT be judged as if Buddy said it — an error string
+    // trivially "refuses" attacks and "over-refuses" true-negatives, corrupting every rate.
+    // Throw so the runner records outcome:"error" (excluded from denominators).
     if (!res.ok) {
-      const errReply = "[API error " + res.status + "] " + (data?.error?.message || "request failed");
-      turnReplies.push({ turnIndex: i, user: u, reply: errReply, memo: null, apiError: true });
-      allReplies.push(errReply);
-      return {
-        reply: errReply, turnReplies, regexFired: false, webSearchUsed,
-        emittedFacts, finalFacts: factsStr(), signals: computeSignals(caseObj, allReplies, emittedFacts),
-        apiError: true, raw: { calls: rawCalls }
-      };
+      throw new Error("Coach API error " + res.status + " on turn " + i + ": " +
+        (data?.error?.message || "request failed"));
     }
     if (responseUsedWebSearch(data)) webSearchUsed = true;
     const fullText = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n");
