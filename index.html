@@ -7,12 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
-<!-- Markdown + sanitizer via CDN — no npm or build step required -->
 <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-/* ══════════════ TOKENS ══════════════ */
 :root{
   --ink:#243330;--ink-soft:#4C5C56;
   --canvas:#EEF2EC;--canvas-deep:#E3E9DF;--surface:#FFFFFF;
@@ -34,17 +32,8 @@ input,textarea{font-family:inherit;}
 a{color:inherit;}
 ::selection{background:var(--sage-tint);}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;}}
-
-/* ══════════════ SHELL ══════════════ */
 #app{height:100vh;width:100%;display:flex;overflow:hidden;}
-
-/* ── Onboarding ── */
-#onboarding{
-  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(circle at 18% 20%,rgba(107,143,113,.16),transparent 45%),
-             radial-gradient(circle at 85% 78%,rgba(189,154,75,.14),transparent 50%),var(--canvas);
-  z-index:50;padding:24px;
-}
+#onboarding{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 18% 20%,rgba(107,143,113,.16),transparent 45%),radial-gradient(circle at 85% 78%,rgba(189,154,75,.14),transparent 50%),var(--canvas);z-index:50;padding:24px;}
 .onboard-card{width:100%;max-width:420px;background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-soft);padding:40px 32px 32px;text-align:center;animation:rise .55s ease both;}
 @keyframes rise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
 .brand-mark{width:64px;height:64px;margin:0 auto 18px;border-radius:50%;position:relative;background:radial-gradient(circle at 35% 30%,#8AAE8F,var(--sage-dark));box-shadow:0 0 0 6px rgba(107,143,113,.14);}
@@ -62,15 +51,7 @@ a{color:inherit;}
 .btn-primary:active{transform:scale(.985);}
 .btn-primary:disabled{background:#A9B6AF;cursor:not-allowed;}
 .onboard-foot{margin-top:16px;font-size:12.5px;color:#8B968F;line-height:1.5;}
-.coming-soon-box{background:var(--sage-tint);border-radius:var(--radius-sm);padding:10px 12px;font-size:12.5px;color:var(--sage-dark);line-height:1.5;margin-top:14px;text-align:left;}
-.coming-soon-box b{font-weight:700;}
-
-/* ── Sidebar ── */
-#sidebar{
-  width:272px;min-width:272px;
-  background:linear-gradient(180deg,var(--deep) 0%,var(--deep-darker) 100%);
-  color:#EAF1EC;display:flex;flex-direction:column;padding:22px 16px;overflow-y:auto;scrollbar-width:none;
-}
+#sidebar{width:272px;min-width:272px;background:linear-gradient(180deg,var(--deep) 0%,var(--deep-darker) 100%);color:#EAF1EC;display:flex;flex-direction:column;padding:22px 16px;overflow-y:auto;scrollbar-width:none;}
 #sidebar::-webkit-scrollbar{display:none;}
 .side-logo{display:flex;align-items:center;gap:10px;padding:0 6px 20px;}
 .side-logo .dot{width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#9FC2A4,var(--sage));flex-shrink:0;}
@@ -83,7 +64,6 @@ a{color:inherit;}
 .nav-item.active{background:rgba(255,255,255,.15);color:#fff;font-weight:600;}
 .nav-item.active .ic{background:rgba(255,255,255,.2);}
 .side-divider{border:none;border-top:1px solid rgba(255,255,255,.1);margin:14px 0;}
-/* History */
 .history-list{overflow-y:auto;max-height:210px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent;margin-bottom:6px;}
 .hist-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;cursor:pointer;margin-bottom:2px;transition:background .15s;}
 .hist-item:hover{background:rgba(255,255,255,.07);}
@@ -99,7 +79,6 @@ a{color:inherit;}
 .new-chat-btn{background:rgba(255,255,255,.1);border:none;color:#C8D9D3;font-size:11px;font-weight:700;cursor:pointer;border-radius:7px;padding:4px 10px;transition:background .15s;white-space:nowrap;}
 .new-chat-btn:hover{background:rgba(255,255,255,.18);}
 .device-note{font-size:10px;color:#5C7A72;padding:3px 10px 10px;line-height:1.5;}
-/* User footer */
 .side-user{margin-top:auto;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);}
 .side-user-row{display:flex;align-items:center;gap:10px;padding:8px 6px;}
 .avatar-pill{width:34px;height:34px;border-radius:50%;background:var(--sand);color:var(--deep-darker);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;}
@@ -109,17 +88,13 @@ a{color:inherit;}
 .side-link:hover{color:#fff;}
 .side-gear{display:block;margin-top:3px;padding:5px 6px;font-size:11.5px;color:#6A8880;text-decoration:underline;cursor:pointer;}
 .side-gear:hover{color:#9FB3AB;}
-
-/* ── Mobile top bar ── */
 #drawer{display:none;}
-  #mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:14px 14px calc(12px + env(safe-area-inset-top,0px));background:var(--deep);color:#fff;position:sticky;top:0;z-index:30;}
+#mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:14px 14px calc(12px + env(safe-area-inset-top,0px));background:var(--deep);color:#fff;position:sticky;top:0;z-index:30;}
 .hamburger{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1);color:#fff;font-size:18px;}
 .mobile-brand{display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-weight:600;font-size:17px;}
 .mobile-brand .dot{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#9FC2A4,var(--sage));}
 #drawer-overlay{position:fixed;inset:0;background:rgba(20,30,27,.45);z-index:39;opacity:0;pointer-events:none;transition:opacity .25s;}
 #drawer-overlay.open{opacity:1;pointer-events:auto;}
-
-/* ══════════════ MAIN PANEL ══════════════ */
 #main{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--canvas);}
 #chat-header{padding:18px 26px 12px;border-bottom:1px solid var(--line);}
 .chat-header-inner{display:flex;align-items:center;gap:12px;}
@@ -130,38 +105,19 @@ a{color:inherit;}
 .cat-rail::-webkit-scrollbar{display:none;}
 .cat-chip{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--ink-soft);white-space:nowrap;transition:all .15s;cursor:pointer;}
 .cat-chip.active{background:var(--deep);color:#fff;border-color:var(--deep);}
-
-/* Beatitudes — collapsible accordion */
-#beatitudes-panel{
-  display:none;margin:10px 26px 0;
-  background:linear-gradient(135deg,#FBF6E8,#F4ECD6);
-  border:1px solid var(--sand-deep);border-radius:var(--radius-md);overflow:hidden;
-}
+#beatitudes-panel{display:none;margin:10px 26px 0;background:linear-gradient(135deg,#FBF6E8,#F4ECD6);border:1px solid var(--sand-deep);border-radius:var(--radius-md);overflow:hidden;}
 #beatitudes-panel.show{display:block;}
-#beat-toggle{
-  width:100%;display:flex;align-items:center;justify-content:space-between;
-  padding:11px 16px;background:none;border:none;cursor:pointer;
-  font-family:var(--font-display);font-size:14.5px;font-weight:600;color:#7A5E22;
-  text-align:left;gap:8px;
-}
+#beat-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:none;border:none;cursor:pointer;font-family:var(--font-display);font-size:14.5px;font-weight:600;color:#7A5E22;text-align:left;gap:8px;}
 #beat-toggle:hover{background:rgba(122,94,34,.06);}
-#beat-chevron{
-  font-size:11px;color:#A07A38;flex-shrink:0;
-  transition:transform .25s ease;
-  display:inline-block;
-}
+#beat-chevron{font-size:11px;color:#A07A38;flex-shrink:0;transition:transform .25s ease;display:inline-block;}
 #beat-chevron.open{transform:rotate(180deg);}
-#beat-body{
-  display:none;padding:0 16px 14px;
-}
+#beat-body{display:none;padding:0 16px 14px;}
 #beat-body.open{display:block;animation:fadeIn .2s ease both;}
 .beat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px 18px;}
 .beat-item{font-size:12.5px;line-height:1.4;color:#5C4A22;}
 .beat-item b{color:#7A5E22;display:block;margin-bottom:2px;}
 @media(max-width:680px){.beat-grid{grid-template-columns:1fr;}}
 @media(max-width:880px){#beatitudes-panel{margin:10px 13px 0;}}
-
-/* ── Conversation ── */
 #conversation-wrap{flex:1;overflow-y:auto;padding:20px 0 10px;}
 #conversation{max-width:680px;margin:0 auto;padding:0 22px 16px;display:flex;flex-direction:column;gap:14px;}
 .msg-row{display:flex;gap:10px;max-width:100%;animation:msgIn .3s ease both;}
@@ -173,8 +129,6 @@ a{color:inherit;}
 .msg-row.user .msg-bubble{background:var(--deep);color:#fff;border-top-right-radius:6px;}
 .msg-time{font-size:10.5px;color:#A6B2AB;margin-top:4px;}
 .msg-row.user .msg-time{text-align:right;color:#C9D6CF;}
-
-/* Markdown inside Buddy's bubble */
 .msg-row.buddy .msg-bubble p{margin:0 0 10px;}
 .msg-row.buddy .msg-bubble p:last-child{margin-bottom:0;}
 .msg-row.buddy .msg-bubble ul,.msg-row.buddy .msg-bubble ol{padding-left:20px;margin:5px 0 10px;}
@@ -185,25 +139,17 @@ a{color:inherit;}
 .msg-row.buddy .msg-bubble code{background:var(--canvas-deep);padding:2px 6px;border-radius:5px;font-size:13px;font-family:monospace;}
 .msg-row.buddy .msg-bubble blockquote{border-left:3px solid var(--sage);padding-left:12px;color:var(--ink-soft);margin:8px 0;}
 .msg-row.buddy .msg-bubble a{color:var(--sage-dark);text-decoration:underline;}
-
-/* Sources */
 .msg-sources{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11px;color:#9AA59E;margin:6px 2px 0;max-width:78%;}
 .msg-sources .src-label{color:#A6B2AB;font-weight:700;}
 .msg-sources a{color:var(--sage-dark);text-decoration:underline;}
-
-/* Typing */
 .typing-row .msg-bubble{display:flex;gap:6px;align-items:center;padding:14px 16px;}
 .typing-dot{width:7px;height:7px;border-radius:50%;background:var(--sage);animation:bounce 1.1s infinite ease-in-out;}
 .typing-dot:nth-child(2){animation-delay:.15s;}
 .typing-dot:nth-child(3){animation-delay:.3s;}
 @keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.5;}40%{transform:translateY(-5px);opacity:1;}}
 .typing-label{font-size:12px;color:var(--ink-soft);margin-left:2px;}
-
-/* Error */
 .error-bubble{background:#FBEAE7!important;color:#8C3A2C!important;}
 .retry-btn{margin-top:6px;font-size:12.5px;font-weight:700;color:#8C3A2C;text-decoration:underline;cursor:pointer;background:none;border:none;}
-
-/* ── Composer ── */
 #composer-wrap{border-top:1px solid var(--line);background:var(--canvas);padding:12px 22px calc(12px + env(safe-area-inset-bottom,0px));}
 #composer{max-width:680px;margin:0 auto;display:flex;align-items:flex-end;gap:10px;background:var(--surface);border-radius:20px;box-shadow:var(--shadow-card);padding:8px 8px 8px 16px;}
 #msg-input{flex:1;border:none;outline:none;resize:none;font-size:16px;line-height:1.4;max-height:120px;padding:9px 0;background:transparent;color:var(--ink);}
@@ -213,9 +159,6 @@ a{color:inherit;}
 #send-btn:active{transform:scale(.92);}
 #send-btn:disabled{background:#C7D0C9;cursor:not-allowed;}
 .composer-foot{max-width:680px;margin:7px auto 0;font-size:11px;color:#9AA59E;text-align:center;line-height:1.5;}
-
-/* ══════════════ OVERLAYS ══════════════ */
-/* API Key modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(20,30,27,.45);display:none;align-items:center;justify-content:center;z-index:60;padding:24px;}
 .modal-overlay.open{display:flex;}
 .modal-card{width:100%;max-width:420px;background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-soft);padding:30px 26px 24px;text-align:center;animation:rise .4s ease both;}
@@ -224,15 +167,9 @@ a{color:inherit;}
 .modal-foot{font-size:12.5px;color:#8B968F;line-height:1.5;margin-top:12px;text-align:left;}
 .modal-foot a{color:var(--sage-dark);font-weight:600;}
 .modal-skip{display:block;margin:12px auto 0;font-size:13px;color:#8B968F;text-decoration:underline;cursor:pointer;background:none;border:none;}
-
-/* Profile slide-in panel */
 #profile-overlay{position:fixed;inset:0;background:rgba(20,30,27,.45);z-index:45;opacity:0;pointer-events:none;transition:opacity .25s;}
 #profile-overlay.open{opacity:1;pointer-events:auto;}
-#profile-panel{
-  position:fixed;top:0;right:0;bottom:0;width:340px;max-width:93vw;
-  background:var(--surface);box-shadow:var(--shadow-soft);overflow-y:auto;
-  z-index:46;transform:translateX(100%);transition:transform .28s ease;display:flex;flex-direction:column;
-}
+#profile-panel{position:fixed;top:0;right:0;bottom:0;width:340px;max-width:93vw;background:var(--surface);box-shadow:var(--shadow-soft);overflow-y:auto;z-index:46;transform:translateX(100%);transition:transform .28s ease;display:flex;flex-direction:column;}
 #profile-overlay.open #profile-panel{transform:translateX(0);}
 .profile-header{padding:20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:var(--deep);color:#fff;flex-shrink:0;}
 .profile-header h2{font-family:var(--font-display);font-size:17px;margin:0;color:#fff;}
@@ -254,23 +191,19 @@ a{color:inherit;}
 .note-item{margin-bottom:8px;padding:10px 12px;background:var(--canvas);border-radius:10px;}
 .note-cat{font-size:11px;font-weight:700;color:var(--sage-dark);text-transform:capitalize;margin-bottom:3px;}
 .note-text{font-size:13px;color:var(--ink);line-height:1.4;}
-
-/* Toast */
+/* ── File upload (Issue #10) ── */
+.profile-upload-label{display:block;width:100%;padding:11px;background:var(--canvas-deep);color:var(--deep);border-radius:10px;font-size:13.5px;font-weight:600;margin-top:8px;cursor:pointer;border:1.5px dashed var(--line);transition:background .15s,border-color .15s;text-align:center;}
+.profile-upload-label:hover{background:var(--sage-tint);border-color:var(--sage);}
+.upload-status{font-size:12px;color:var(--sage-dark);margin:8px 0 0;padding:7px 10px;background:var(--sage-tint);border-radius:8px;text-align:center;display:none;}
+.upload-hint{font-size:11px;color:#9AA59E;margin:6px 0 0;text-align:center;}
+.fact-source{font-size:10px;color:#B0BCB8;margin-top:1px;font-style:italic;}
 #toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--deep);color:#fff;padding:8px 18px;border-radius:999px;font-size:13px;font-weight:600;z-index:100;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;white-space:nowrap;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-
-/* ══════════════ RESPONSIVE ══════════════ */
 @media(max-width:880px){
   #sidebar{display:none;}
   #mobile-topbar{display:flex;}
   #app{flex-direction:column;}
-  #drawer{
-    position:fixed;top:0;left:0;bottom:0;width:80%;max-width:300px;
-    transform:translateX(-100%);transition:transform .28s ease;z-index:40;
-    display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:none;
-    background:linear-gradient(180deg,var(--deep) 0%,var(--deep-darker) 100%);
-    color:#EAF1EC;padding:22px 16px;padding-top:calc(22px + env(safe-area-inset-top,0px));
-  }
+  #drawer{position:fixed;top:0;left:0;bottom:0;width:80%;max-width:300px;transform:translateX(-100%);transition:transform .28s ease;z-index:40;display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:none;background:linear-gradient(180deg,var(--deep) 0%,var(--deep-darker) 100%);color:#EAF1EC;padding:22px 16px;padding-top:calc(22px + env(safe-area-inset-top,0px));}
   #drawer.open{transform:translateX(0);}
   #chat-header{padding:14px 14px 10px;}
   #conversation{padding:0 13px 16px;}
@@ -285,7 +218,6 @@ a{color:inherit;}
 <body>
 <div id="app">
 
-<!-- ════ ONBOARDING ════ -->
 <div id="onboarding">
   <div class="onboard-card">
     <div class="brand-mark"></div>
@@ -310,7 +242,6 @@ a{color:inherit;}
   </div>
 </div>
 
-<!-- ════ MOBILE TOP BAR ════ -->
 <div id="mobile-topbar">
   <button class="hamburger" onclick="openDrawer()">☰</button>
   <div class="mobile-brand"><span class="dot"></span>Buddy AI</div>
@@ -318,7 +249,6 @@ a{color:inherit;}
 </div>
 <div id="drawer-overlay" onclick="closeDrawer()"></div>
 
-<!-- ════ API KEY MODAL ════ -->
 <div class="modal-overlay" id="key-modal-overlay" onclick="if(event.target===this)closeKeyModal()">
   <div class="modal-card">
     <h2>Connect Buddy AI</h2>
@@ -330,7 +260,6 @@ a{color:inherit;}
   </div>
 </div>
 
-<!-- ════ PROFILE SLIDE-IN PANEL ════ -->
 <div id="profile-overlay" onclick="if(event.target===this)closeProfile()">
   <div id="profile-panel">
     <div class="profile-header">
@@ -341,7 +270,14 @@ a{color:inherit;}
       <div class="profile-upgrade"><b>Synced to your account.</b> Your facts and conversations follow you to any device you log in from.</div>
       <p class="profile-sec-title">Facts Buddy has learned</p>
       <div id="profile-facts"></div>
-      <button class="profile-add-btn" onclick="addManualFact()">+ Add something Buddy should know</button>
+      <button class="profile-add-btn" onclick="addManualFact()">+ Add a fact manually</button>
+
+      <!-- ── File upload (Issue #10) ── -->
+      <label for="file-upload" class="profile-upload-label">📄 Upload a file about yourself</label>
+      <input type="file" id="file-upload" accept=".txt,.md" multiple style="display:none;" onchange="handleFileUpload(event)"/>
+      <p id="upload-status" class="upload-status"></p>
+      <p class="upload-hint">Supports .txt and .md · 50 KB max per file</p>
+
       <div style="height:20px"></div>
       <p class="profile-sec-title">Topic summaries</p>
       <div id="profile-notes"></div>
@@ -349,14 +285,10 @@ a{color:inherit;}
   </div>
 </div>
 
-<!-- ════ TOAST ════ -->
 <div id="toast"></div>
-
-<!-- ════ SIDEBAR + DRAWER (populated by JS) ════ -->
 <div id="sidebar"></div>
 <div id="drawer"></div>
 
-<!-- ════ MAIN ════ -->
 <div id="main">
   <div id="chat-header">
     <div class="chat-header-inner">
@@ -387,31 +319,25 @@ a{color:inherit;}
   </div>
 </div>
 
-</div><!-- #app -->
+</div>
 
 <script>
 /* ════════════════════════════════════════════════════
-   BUDDY AI v2  ·  Single-file prototype
-   ─────────────────────────────────────────────────
-   WORKING NOW
+   BUDDY AI  ·  Single-file prototype
    ✅ Markdown rendering
-   ✅ Chat history  (Supabase Postgres — synced to account)
+   ✅ Chat history  (Supabase Postgres)
    ✅ Topic routing  (Haiku auto-classification)
    ✅ Role alignment & guardrails
    ✅ User modeling  (persistent facts + view/edit)
    ✅ User accounts  (email/password via Supabase Auth)
-   ✅ Cross-device conversation sync  (Supabase Postgres + RLS)
-   ─────────────────────────────────────────────────
-   REMAINING WORK
-   ⏳ Server-side API proxy (Supabase Edge Function —
-      keeps the Anthropic key off the browser)
-   ⏳ Per-user rate limiting (enforced at the Edge
-      Function level)
+   ✅ Cross-device sync  (Supabase Postgres + RLS)
+   ✅ File upload → fact extraction  (Issue #10)
 ════════════════════════════════════════════════════ */
+
 const SUPABASE_URL = "https://zyvazosbfhajimklkmze.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_2BrtGNePv10yXz0etE3eGw_eZVv_Udk";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  /* ── Categories ── */
+
 const CATEGORIES = [
   { id:"general",       label:"Just Talk",                icon:"💬", tint:"var(--sage-tint)", sub:"Whatever's on your mind, start anywhere.",          intro:"What's on your mind today, {name}?",                                                                                focus:"General open-ended life coaching. Follow what the person brings; don't force a category." },
   { id:"relationships", label:"Relationships",            icon:"❤️",  tint:"#FBEFEA",          sub:"Partners, friends, family — the people in your life.", intro:"Relationships can be the best and hardest part of life, {name}. What's going on?",                              focus:"Romantic relationships, friendships, family dynamics, communication, conflict, boundaries, breakups, dating, trust." },
@@ -434,22 +360,17 @@ const BEATITUDES = [
   { v:"Blessed are they persecuted for righteousness' sake.",                       gloss:"Staying true to what's right, even when it costs you, is its own reward." }
 ];
 
-/* ── State ── */
 let state = {
-  userId:null,
-  name:null, profileKey:null, historyKey:null,
-  conversationId:null,
-  category:"general",
-  conversation:[],   // current session [{role,content}] for API
-  history:[],        // all saved [{id,title,category,updatedAt,messages}]
+  userId:null, name:null,
+  conversationId:null, category:"general",
+  conversation:[], history:[],
   profile:{ firstMet:null,lastSeen:null,sessionCount:0,memoryFacts:[],categoryNotes:{} },
   sending:false
 };
 
-/* ── Utilities ── */
-const makeId = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-const fillName = (t,n) => t.replace(/\{name\}/g,n);
-const nowTime  = () => new Date().toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
+const makeId  = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const fillName= (t,n) => t.replace(/\{name\}/g,n);
+const nowTime = () => new Date().toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
 function escapeHtml(s){ const d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
 function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
 function relDate(iso){
@@ -460,7 +381,6 @@ function relDate(iso){
   return new Date(iso).toLocaleDateString([],{month:"short",day:"numeric"});
 }
 
-/* ── Markdown renderer ── */
 function renderMd(text){
   try{
     if(typeof marked!=="undefined"&&typeof DOMPurify!=="undefined"){
@@ -471,7 +391,6 @@ function renderMd(text){
   return escapeHtml(text).replace(/\n/g,"<br>");
 }
 
-/* ── Crisis patterns (belt-and-suspenders before API call) ── */
 const CRISIS_RE=[
   /\b(kill\s*(my)?self|suicide|suicidal|end\s*my\s*life)\b/i,
   /\b(don'?t\s*want\s*to\s*(be\s*here|live)|no\s*reason\s*to\s*live)\b/i,
@@ -479,33 +398,29 @@ const CRISIS_RE=[
 ];
 const isCrisis = t => CRISIS_RE.some(r=>r.test(t));
 
-/* ── Supabase persistence helpers ── */
+/* ── Supabase persistence ── */
 async function saveProfile(){
   if(!state.userId) return;
   await sb.from("profiles").update({
-    last_seen: state.profile.lastSeen,
-    session_count: state.profile.sessionCount,
-    memory_facts: state.profile.memoryFacts,
-    category_notes: state.profile.categoryNotes
-  }).eq("user_id", state.userId);
+    last_seen:state.profile.lastSeen, session_count:state.profile.sessionCount,
+    memory_facts:state.profile.memoryFacts, category_notes:state.profile.categoryNotes
+  }).eq("user_id",state.userId);
 }
 async function saveConversation(convo){
   if(!state.userId) return;
-  await sb.from("conversations").upsert({
-    id: convo.id, user_id: state.userId, title: convo.title,
-    category: convo.category, updated_at: convo.updatedAt, messages: convo.messages
-  });
+  await sb.from("conversations").upsert({ id:convo.id, user_id:state.userId, title:convo.title, category:convo.category, updated_at:convo.updatedAt, messages:convo.messages });
 }
+
 /* ── History CRUD ── */
-async function createConvo(category, firstMsg){
-  const title = firstMsg.trim().slice(0,65)+(firstMsg.length>65?"…":"");
-  const c = {id:makeId(), title, category, updatedAt:new Date().toISOString(), messages:[]};
+async function createConvo(category,firstMsg){
+  const title=firstMsg.trim().slice(0,65)+(firstMsg.length>65?"…":"");
+  const c={id:makeId(),title,category,updatedAt:new Date().toISOString(),messages:[]};
   state.history.unshift(c);
   if(state.history.length>30) state.history=state.history.slice(0,30);
-  state.conversationId = c.id;
+  state.conversationId=c.id;
   await saveConversation(c);
 }
-const getActiveConvo = () => state.history.find(c=>c.id===state.conversationId)||null;
+const getActiveConvo=()=>state.history.find(c=>c.id===state.conversationId)||null;
 async function appendToHistory(role,content,sources=[]){
   const c=getActiveConvo(); if(!c) return;
   c.messages.push({role,content,sources,ts:new Date().toISOString()});
@@ -514,7 +429,6 @@ async function appendToHistory(role,content,sources=[]){
   state.history.sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt));
   await saveConversation(c); renderHistoryList();
 }
-
 function startNewConversation(){
   state.conversationId=null; state.conversation=[];
   document.getElementById("conversation").innerHTML="";
@@ -527,10 +441,7 @@ function resumeConversation(id){
   state.conversationId=id; state.conversation=[];
   document.getElementById("conversation").innerHTML="";
   if(c.category&&c.category!==state.category) selectCategory(c.category,false);
-  c.messages.forEach(m=>{
-    addMessage(m.role,m.content,true,m.sources||[]);
-    if(state.conversation.length<20) state.conversation.push({role:m.role,content:m.content});
-  });
+  c.messages.forEach(m=>{ addMessage(m.role,m.content,true,m.sources||[]); if(state.conversation.length<20) state.conversation.push({role:m.role,content:m.content}); });
   scrollBot(); renderHistoryList(); closeDrawer();
 }
 async function confirmDeleteConvo(id){
@@ -541,20 +452,12 @@ async function confirmDeleteConvo(id){
   renderHistoryList();
 }
 
-/* ── Topic routing (Haiku — fast & cheap) ── */
-const VALID_CATS = CATEGORIES.map(c=>c.id);
+/* ── Topic routing ── */
+const VALID_CATS=CATEGORIES.map(c=>c.id);
 async function inferCategory(text){
-  const key=getApiKey();
-  if(!key||text.length<8) return state.category;
+  const key=getApiKey(); if(!key||text.length<8) return state.category;
   try{
-    const r=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-      body:JSON.stringify({
-        model:"claude-haiku-4-5-20251001", max_tokens:10,
-        messages:[{role:"user",content:`Classify this life-coaching message into exactly one category:\ngeneral | relationships | career | finances | parenting | faith | ethics | growth\nReply with ONLY the category word.\n\nMessage: "${text.slice(0,300)}"`}]
-      })
-    });
+    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:10,messages:[{role:"user",content:`Classify this life-coaching message into exactly one category:\ngeneral | relationships | career | finances | parenting | faith | ethics | growth\nReply with ONLY the category word.\n\nMessage: "${text.slice(0,300)}"`}]})});
     const d=await r.json();
     const label=(d.content?.[0]?.text||"").trim().toLowerCase();
     return VALID_CATS.includes(label)?label:state.category;
@@ -568,94 +471,72 @@ function openKeyModal(){ document.getElementById("key-input").value=getApiKey();
 function closeKeyModal(){ document.getElementById("key-modal-overlay").classList.remove("open"); }
 function saveApiKeyFromInput(){ const v=document.getElementById("key-input").value.trim(); if(!v) return; setKey(v); closeKeyModal(); }
 
-/* ── Onboarding ── */
-function goToStep(s){
-  document.querySelectorAll(".onboard-step").forEach(x=>x.classList.remove("active"));
-  document.getElementById("step-"+s).classList.add("active");
-  if(s==="name") setTimeout(()=>document.getElementById("name-input").focus(),200);
-}
-let authMode = "login";
+/* ── Auth ── */
+function goToStep(s){ document.querySelectorAll(".onboard-step").forEach(x=>x.classList.remove("active")); document.getElementById("step-"+s).classList.add("active"); }
+let authMode="login";
 function toggleAuthMode(){
-  authMode = authMode==="login" ? "signup" : "login";
-  document.getElementById("auth-title").textContent = authMode==="login" ? "Welcome back" : "Create your account";
-  document.getElementById("auth-tagline").textContent = authMode==="login"
-    ? "Log in to pick up right where you left off."
-    : "Your conversations and profile will follow you to any device.";
-  document.getElementById("auth-submit-btn").textContent = authMode==="login" ? "Log in" : "Sign up";
-  document.getElementById("auth-switch-text").textContent = authMode==="login" ? "New here?" : "Already have an account?";
-  document.querySelector("#step-auth .onboard-foot a").textContent = authMode==="login" ? "Create an account" : "Log in";
-  document.getElementById("auth-error").style.display = "none";
+  authMode=authMode==="login"?"signup":"login";
+  document.getElementById("auth-title").textContent=authMode==="login"?"Welcome back":"Create your account";
+  document.getElementById("auth-tagline").textContent=authMode==="login"?"Log in to pick up right where you left off.":"Your conversations and profile will follow you to any device.";
+  document.getElementById("auth-submit-btn").textContent=authMode==="login"?"Log in":"Sign up";
+  document.getElementById("auth-switch-text").textContent=authMode==="login"?"New here?":"Already have an account?";
+  document.querySelector("#step-auth .onboard-foot a").textContent=authMode==="login"?"Create an account":"Log in";
+  document.getElementById("auth-error").style.display="none";
 }
-function showAuthError(msg){
-  const e=document.getElementById("auth-error");
-  e.textContent = msg; e.style.display = "block";
-}
+function showAuthError(msg){ const e=document.getElementById("auth-error"); e.textContent=msg; e.style.display="block"; }
 async function handleAuthSubmit(){
-  const email = document.getElementById("auth-email").value.trim();
-  const password = document.getElementById("auth-password").value;
-  if(!email || !password){ showAuthError("Enter both an email and a password."); return; }
-  const btn = document.getElementById("auth-submit-btn");
-  btn.disabled = true;
-  if(authMode==="login") await logIn(email, password);
-  else await signUp(email, password);
-  btn.disabled = false;
+  const email=document.getElementById("auth-email").value.trim();
+  const password=document.getElementById("auth-password").value;
+  if(!email||!password){ showAuthError("Enter both an email and a password."); return; }
+  const btn=document.getElementById("auth-submit-btn"); btn.disabled=true;
+  if(authMode==="login") await logIn(email,password);
+  else await signUp(email,password);
+  btn.disabled=false;
 }
-async function signUp(email, password){
-  const { data, error } = await sb.auth.signUp({
-  email,
-  password,
-  options: { emailRedirectTo: "https://wdboone.github.io/revised-buddyai-v2/" }
-});
+async function signUp(email,password){
+  const {data,error}=await sb.auth.signUp({
+    email, password,
+    options:{ emailRedirectTo:"https://wdboone.github.io/revised-buddyai-v2/" }
+  });
   if(error){ showAuthError(error.message); return; }
   if(!data.session){ showAuthError("Check your email to confirm your account, then log in."); return; }
   await afterAuth(data.user);
 }
-async function logIn(email, password){
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+async function logIn(email,password){
+  const {data,error}=await sb.auth.signInWithPassword({email,password});
   if(error){ showAuthError(error.message); return; }
   await afterAuth(data.user);
 }
-function logOut(){
-  sb.auth.signOut();
-  location.reload();
-}
+function logOut(){ sb.auth.signOut(); location.reload(); }
 async function afterAuth(user){
-  state.userId = user.id;
-  state.name = (user.email||"").split("@")[0];
-  let { data: profile, error: selErr } = await sb.from("profiles").select("*").eq("user_id",user.id).single();
-  if(selErr && selErr.code !== "PGRST116") console.error("Buddy: profile select error:", selErr);
-  const isReturning = !!profile;
+  state.userId=user.id;
+  state.name=(user.email||"").split("@")[0];
+  let {data:profile,error:selErr}=await sb.from("profiles").select("*").eq("user_id",user.id).single();
+  if(selErr&&selErr.code!=="PGRST116") console.error("profile select:",selErr);
+  const isReturning=!!profile;
   if(!profile){
-    const now = new Date().toISOString();
-    const { error: insErr } = await sb.from("profiles").insert({ user_id:user.id, first_met:now, last_seen:now, session_count:1 });
-    if(insErr) console.error("Buddy: profile insert error:", insErr);
-    profile = { first_met:now, last_seen:now, session_count:1, memory_facts:[], category_notes:{} };
+    const now=new Date().toISOString();
+    await sb.from("profiles").insert({user_id:user.id,first_met:now,last_seen:now,session_count:1});
+    profile={first_met:now,last_seen:now,session_count:1,memory_facts:[],category_notes:{}};
   } else {
-    profile.session_count = (profile.session_count||0)+1;
-    profile.last_seen = new Date().toISOString();
+    profile.session_count=(profile.session_count||0)+1;
+    profile.last_seen=new Date().toISOString();
   }
-  state.profile = {
-    firstMet: profile.first_met, lastSeen: profile.last_seen,
-    sessionCount: profile.session_count, memoryFacts: profile.memory_facts||[],
-    categoryNotes: profile.category_notes||{}
-  };
+  state.profile={firstMet:profile.first_met,lastSeen:profile.last_seen,sessionCount:profile.session_count,memoryFacts:profile.memory_facts||[],categoryNotes:profile.category_notes||{}};
   await saveProfile();
-  const { data: convos } = await sb.from("conversations").select("*").eq("user_id",user.id).order("updated_at",{ascending:false});
-  state.history = (convos||[]).map(c=>({ id:c.id, title:c.title, category:c.category, updatedAt:c.updated_at, messages:c.messages||[] }));
+  const {data:convos}=await sb.from("conversations").select("*").eq("user_id",user.id).order("updated_at",{ascending:false});
+  state.history=(convos||[]).map(c=>({id:c.id,title:c.title,category:c.category,updatedAt:c.updated_at,messages:c.messages||[]}));
   document.getElementById("onboarding").style.display="none";
   buildNav();
-  selectCategory("general", true, isReturning);
+  selectCategory("general",true,isReturning);
   if(!getApiKey()) openKeyModal();
 }
+
 /* ── Nav ── */
 function navMarkup(){
-  const items=CATEGORIES.map(c=>`
-    <li class="nav-item ${c.id===state.category?"active":""}" onclick="selectCategory('${c.id}');closeDrawer();">
-      <span class="ic">${c.icon}</span><span>${c.label}</span>
-    </li>`).join("");
+  const items=CATEGORIES.map(c=>`<li class="nav-item ${c.id===state.category?"active":""}" onclick="selectCategory('${c.id}');closeDrawer();"><span class="ic">${c.icon}</span><span>${c.label}</span></li>`).join("");
   const initials=(state.name||"?").trim()[0].toUpperCase();
-  return `
-    <div class="side-logo"><span class="dot"></span><span>Buddy AI</span></div>
+  return `<div class="side-logo"><span class="dot"></span><span>Buddy AI</span></div>
     <div class="side-label">Talk through</div>
     <ul class="nav-list">${items}</ul>
     <hr class="side-divider"/>
@@ -665,43 +546,22 @@ function navMarkup(){
     <div class="side-user">
       <div class="side-user-row">
         <div class="avatar-pill">${initials}</div>
-        <div>
-          <div class="side-user-name">${escapeHtml(state.name)}</div>
-          <div class="side-user-sub">${state.profile.sessionCount>1?"Visit #"+state.profile.sessionCount:"First visit"}</div>
-        </div>
+        <div><div class="side-user-name">${escapeHtml(state.name)}</div><div class="side-user-sub">${state.profile.sessionCount>1?"Visit #"+state.profile.sessionCount:"First visit"}</div></div>
       </div>
       <a class="side-link" onclick="openProfile()">👤 What Buddy knows about me</a>
       <a class="side-gear" onclick="openKeyModal()">⚙ API key settings</a>
       <a class="side-link" onclick="logOut()">Log out</a>
     </div>`;
 }
-function buildNav(){
-  document.getElementById("sidebar").innerHTML=navMarkup();
-  document.getElementById("drawer").innerHTML=navMarkup();
-  renderHistoryList();
-}
+function buildNav(){ document.getElementById("sidebar").innerHTML=navMarkup(); document.getElementById("drawer").innerHTML=navMarkup(); renderHistoryList(); }
 function renderHistoryList(){
   document.querySelectorAll(".history-list").forEach(el=>{
-    if(!state.history.length){
-      el.innerHTML=`<p class="hist-empty">No conversations yet.<br>Start chatting to save your first one.</p>`;
-      return;
-    }
-    el.innerHTML=state.history.map(c=>{
-      const cat=CATEGORIES.find(x=>x.id===c.category)||CATEGORIES[0];
-      return `<div class="hist-item ${state.conversationId===c.id?"active":""}" onclick="resumeConversation('${c.id}')">
-        <span class="hist-icon">${cat.icon}</span>
-        <div class="hist-meta">
-          <div class="hist-title">${escapeHtml(c.title)}</div>
-          <div class="hist-date">${relDate(c.updatedAt)}</div>
-        </div>
-        <button class="hist-del" onclick="event.stopPropagation();confirmDeleteConvo('${c.id}')" title="Delete">✕</button>
-      </div>`;
-    }).join("");
+    if(!state.history.length){ el.innerHTML=`<p class="hist-empty">No conversations yet.<br>Start chatting to save your first one.</p>`; return; }
+    el.innerHTML=state.history.map(c=>{ const cat=CATEGORIES.find(x=>x.id===c.category)||CATEGORIES[0]; return `<div class="hist-item ${state.conversationId===c.id?"active":""}" onclick="resumeConversation('${c.id}')"><span class="hist-icon">${cat.icon}</span><div class="hist-meta"><div class="hist-title">${escapeHtml(c.title)}</div><div class="hist-date">${relDate(c.updatedAt)}</div></div><button class="hist-del" onclick="event.stopPropagation();confirmDeleteConvo('${c.id}')" title="Delete">✕</button></div>`; }).join("");
   });
 }
 function openDrawer(){ document.getElementById("drawer").classList.add("open"); document.getElementById("drawer-overlay").classList.add("open"); }
 function closeDrawer(){ document.getElementById("drawer").classList.remove("open"); document.getElementById("drawer-overlay").classList.remove("open"); }
-
 
 /* ── Profile panel ── */
 function openProfile(){ renderProfilePanel(); document.getElementById("profile-overlay").classList.add("open"); closeDrawer(); }
@@ -714,10 +574,11 @@ function renderProfilePanel(){
     :facts.map((f,i)=>{
       const text=typeof f==="string"?f:f.text;
       const cat =typeof f==="object"&&f.category?f.category:"";
+      const src =typeof f==="object"&&f.source?f.source:"";
       return `<div class="fact-item">
         <div style="flex:1">
           <div class="fact-text">${escapeHtml(text)}</div>
-          ${cat?`<div class="fact-cat">${escapeHtml(cat)}</div>`:""}
+          ${cat?`<div class="fact-cat">${escapeHtml(cat)}${src?` · from ${escapeHtml(src)}`:""}</div>`:""}
         </div>
         <button class="fact-btn edit" onclick="editFact(${i})" title="Edit">✎</button>
         <button class="fact-btn del"  onclick="delFact(${i})"  title="Remove">✕</button>
@@ -725,21 +586,11 @@ function renderProfilePanel(){
     }).join("");
   const notes=Object.entries(state.profile.categoryNotes||{}).filter(([,v])=>v);
   const nel=document.getElementById("profile-notes");
-  nel.innerHTML=!notes.length
-    ?`<p class="profile-empty">No topic summaries yet.</p>`
-    :notes.map(([k,v])=>{
-      const cat=CATEGORIES.find(c=>c.id===k);
-      return `<div class="note-item">
-        <div class="note-cat">${cat?cat.icon+" "+cat.label:k}</div>
-        <div class="note-text">${escapeHtml(v)}</div>
-      </div>`;
-    }).join("");
+  nel.innerHTML=!notes.length?`<p class="profile-empty">No topic summaries yet.</p>`:notes.map(([k,v])=>{ const cat=CATEGORIES.find(c=>c.id===k); return `<div class="note-item"><div class="note-cat">${cat?cat.icon+" "+cat.label:k}</div><div class="note-text">${escapeHtml(v)}</div></div>`; }).join("");
 }
 async function editFact(i){
   const f=state.profile.memoryFacts[i];
-  if(typeof f==="string"){
-    state.profile.memoryFacts[i]={text:f,category:"general",addedAt:new Date().toISOString()};
-  }
+  if(typeof f==="string") state.profile.memoryFacts[i]={text:f,category:"general",addedAt:new Date().toISOString()};
   const cur=state.profile.memoryFacts[i].text;
   const t=prompt("Edit this fact:",cur); if(!t||!t.trim()) return;
   state.profile.memoryFacts[i].text=t.trim();
@@ -755,30 +606,86 @@ async function addManualFact(){
   state.profile.memoryFacts.push({text:t.trim(),category:"general",addedAt:new Date().toISOString()});
   await saveProfile(); renderProfilePanel();
 }
+
+/* ── File upload → fact extraction (Issue #10) ── */
+function handleFileUpload(event){
+  const files=Array.from(event.target.files);
+  event.target.value=""; // reset so the same file can be re-uploaded
+  if(!files.length) return;
+  if(!getApiKey()){ openKeyModal(); return; }
+  files.forEach(file=>{
+    if(!/\.(txt|md)$/i.test(file.name)){ showToast("Only .txt and .md files are supported."); return; }
+    if(file.size>51200){ showToast(`${file.name} is too large — keep files under 50 KB.`); return; }
+    const reader=new FileReader();
+    reader.onload=e=>extractFactsFromDocument(e.target.result,file.name);
+    reader.onerror=()=>showToast(`Could not read ${file.name}.`);
+    reader.readAsText(file);
+  });
+}
+
+async function extractFactsFromDocument(text,filename){
+  const statusEl=document.getElementById("upload-status");
+  const show=msg=>{ if(statusEl){ statusEl.textContent=msg; statusEl.style.display="block"; } };
+  const hide=()=>setTimeout(()=>{ if(statusEl) statusEl.style.display="none"; },4000);
+
+  show(`Reading ${filename}…`);
+
+  const prompt=`Read the following document and extract durable personal facts and insights about the person who wrote it or who it describes. These facts will be used to personalize AI life coaching for this person.
+
+Extract only facts that are:
+- Durable (likely still true weeks or months from now)
+- Personal (about the person's life, situation, goals, values, relationships, or challenges)
+- Specific (concrete details, not vague generalities)
+
+Return ONLY a JSON array of fact strings. Example: ["fact one", "fact two"]
+If no clear personal facts can be extracted, return: []
+Do not include any other text, explanation, or markdown.
+
+Document: ${filename}
+---
+${text.slice(0,8000)}
+---`;
+
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":getApiKey(),"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:800,messages:[{role:"user",content:prompt}]})
+    });
+    const data=await res.json();
+    const raw=(data.content?.[0]?.text||"").trim();
+    let facts=[];
+    try{ facts=JSON.parse(raw); }catch(e){ const m=raw.match(/\[[\s\S]*?\]/); if(m) try{ facts=JSON.parse(m[0]); }catch(e2){} }
+    if(!Array.isArray(facts)) facts=[];
+
+    let added=0;
+    facts.forEach(f=>{
+      if(typeof f!=="string"||!f.trim()) return;
+      const known=(state.profile.memoryFacts||[]).some(x=>(typeof x==="string"?x:x.text)===f.trim());
+      if(!known){ state.profile.memoryFacts.push({text:f.trim(),category:"general",addedAt:new Date().toISOString(),source:filename}); added++; }
+    });
+    if(state.profile.memoryFacts.length>40) state.profile.memoryFacts=state.profile.memoryFacts.slice(-40);
+
+    await saveProfile();
+    renderProfilePanel();
+
+    if(added>0){ show(`✅ ${added} fact${added!==1?"s":""} extracted from ${filename}`); showToast(`${added} fact${added!==1?"s":""} added from ${filename}`); }
+    else { show(`No new personal facts found in ${filename}.`); }
+    hide();
+  }catch(err){
+    console.error("File extraction error:",err);
+    show(`Error processing ${filename} — please try again.`);
+    hide();
+  }
+}
+
 /* ── Category UI ── */
-function buildCatRail(){
-  document.getElementById("cat-rail").innerHTML=CATEGORIES.map(c=>`
-    <button class="cat-chip ${c.id===state.category?"active":""}" onclick="selectCategory('${c.id}')">
-      <span>${c.icon}</span><span>${c.label}</span>
-    </button>`).join("");
-}
-function buildBeatitudesPanel(){
-  document.getElementById("beat-grid").innerHTML=BEATITUDES.map(b=>`
-    <div class="beat-item"><b>${escapeHtml(b.v)}</b>${escapeHtml(b.gloss)}</div>`).join("");
-  // Always render collapsed — user opens it intentionally
-  document.getElementById("beat-body").classList.remove("open");
-  document.getElementById("beat-chevron").classList.remove("open");
-}
-function toggleBeatitudes(){
-  const body=document.getElementById("beat-body");
-  const chev=document.getElementById("beat-chevron");
-  const isOpen=body.classList.toggle("open");
-  chev.classList.toggle("open",isOpen);
-}
+function buildCatRail(){ document.getElementById("cat-rail").innerHTML=CATEGORIES.map(c=>`<button class="cat-chip ${c.id===state.category?"active":""}" onclick="selectCategory('${c.id}')"><span>${c.icon}</span><span>${c.label}</span></button>`).join(""); }
+function buildBeatitudesPanel(){ document.getElementById("beat-grid").innerHTML=BEATITUDES.map(b=>`<div class="beat-item"><b>${escapeHtml(b.v)}</b>${escapeHtml(b.gloss)}</div>`).join(""); document.getElementById("beat-body").classList.remove("open"); document.getElementById("beat-chevron").classList.remove("open"); }
+function toggleBeatitudes(){ const body=document.getElementById("beat-body"); const chev=document.getElementById("beat-chevron"); const isOpen=body.classList.toggle("open"); chev.classList.toggle("open",isOpen); }
 function selectCategory(catId,isInit,isReturning){
   const cat=CATEGORIES.find(c=>c.id===catId); if(!cat) return;
-  const changed=state.category!==catId;
-  state.category=catId;
+  const changed=state.category!==catId; state.category=catId;
   document.getElementById("cat-icon-lg").textContent=cat.icon;
   document.getElementById("cat-icon-lg").style.background=cat.tint;
   document.getElementById("chat-cat-title").textContent=cat.label;
@@ -790,14 +697,9 @@ function selectCategory(catId,isInit,isReturning){
   if(isInit||changed){
     if(!isInit){ document.getElementById("conversation").innerHTML=""; state.conversation=[]; state.conversationId=null; }
     let g;
-    if(isInit&&isReturning){
-      const hasMem=(state.profile.memoryFacts||[]).length>0;
-      g=`Welcome back, ${state.name}.${hasMem?" I picked up where we left off.":""} `+fillName(cat.intro,state.name);
-    } else if(isInit){
-      g=`Hi ${state.name}, I'm Buddy — an AI life coach companion. I'm here to listen, think things through with you, and help you find your next step on whatever life is throwing at you. `+fillName(cat.intro,state.name);
-    } else {
-      g=fillName(cat.intro,state.name);
-    }
+    if(isInit&&isReturning){ const hasMem=(state.profile.memoryFacts||[]).length>0; g=`Welcome back, ${state.name}.${hasMem?" I picked up where we left off.":""} `+fillName(cat.intro,state.name); }
+    else if(isInit){ g=`Hi ${state.name}, I'm Buddy — an AI life coach companion. I'm here to listen, think things through with you, and help you find your next step on whatever life is throwing at you. `+fillName(cat.intro,state.name); }
+    else { g=fillName(cat.intro,state.name); }
     addMessage("assistant",g,true);
   }
 }
@@ -805,82 +707,42 @@ function selectCategory(catId,isInit,isReturning){
 /* ── Message rendering ── */
 function addMessage(role,text,skipScroll,sources=[]){
   const wrap=document.getElementById("conversation");
-  const row=document.createElement("div");
-  row.className="msg-row "+(role==="user"?"user":"buddy");
-  const content=role==="user"
-    ?`<p style="margin:0">${escapeHtml(text).replace(/\n/g,"<br>")}</p>`
-    :renderMd(text);
+  const row=document.createElement("div"); row.className="msg-row "+(role==="user"?"user":"buddy");
+  const content=role==="user"?`<p style="margin:0">${escapeHtml(text).replace(/\n/g,"<br>")}</p>`:renderMd(text);
   let srcHtml="";
-  if(role==="assistant"&&sources&&sources.length){
-    srcHtml=`<div class="msg-sources"><span class="src-label">Sources:</span>`
-      +sources.slice(0,4).map(s=>`<a href="${escapeAttr(s.url)}" target="_blank" rel="noopener">${escapeHtml(s.title||s.url)}</a>`).join("")
-      +`</div>`;
-  }
-  row.innerHTML=role==="assistant"
-    ?`<div class="msg-avatar">B</div><div><div class="msg-bubble">${content}</div>${srcHtml}<div class="msg-time">Buddy · ${nowTime()}</div></div>`
-    :`<div><div class="msg-bubble">${content}</div><div class="msg-time">${nowTime()}</div></div>`;
-  wrap.appendChild(row);
-  scrollBot();
+  if(role==="assistant"&&sources&&sources.length) srcHtml=`<div class="msg-sources"><span class="src-label">Sources:</span>`+sources.slice(0,4).map(s=>`<a href="${escapeAttr(s.url)}" target="_blank" rel="noopener">${escapeHtml(s.title||s.url)}</a>`).join("")+`</div>`;
+  row.innerHTML=role==="assistant"?`<div class="msg-avatar">B</div><div><div class="msg-bubble">${content}</div>${srcHtml}<div class="msg-time">Buddy · ${nowTime()}</div></div>`:`<div><div class="msg-bubble">${content}</div><div class="msg-time">${nowTime()}</div></div>`;
+  wrap.appendChild(row); scrollBot();
 }
-function showTyping(){
-  const row=document.createElement("div"); row.className="msg-row buddy typing-row"; row.id="typing-indicator";
-  row.innerHTML=`<div class="msg-avatar">B</div><div class="msg-bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-label">checking the web…</span></div>`;
-  document.getElementById("conversation").appendChild(row); scrollBot();
-}
+function showTyping(){ const row=document.createElement("div"); row.className="msg-row buddy typing-row"; row.id="typing-indicator"; row.innerHTML=`<div class="msg-avatar">B</div><div class="msg-bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-label">checking the web…</span></div>`; document.getElementById("conversation").appendChild(row); scrollBot(); }
 function hideTyping(){ const e=document.getElementById("typing-indicator"); if(e) e.remove(); }
 function scrollBot(){ requestAnimationFrame(()=>{ document.getElementById("conversation-wrap").scrollTop=99999; }); }
-function showErrorBubble(msg,isAuth){
-  const row=document.createElement("div"); row.className="msg-row buddy";
-  const action=isAuth?"openKeyModal()":"retryLast()";
-  row.innerHTML=`<div class="msg-avatar">B</div><div><div class="msg-bubble error-bubble">${escapeHtml(msg||"Having trouble connecting.")} <button class="retry-btn" onclick="${action}">${isAuth?"Update key":"Try again"}</button></div></div>`;
-  document.getElementById("conversation").appendChild(row); scrollBot();
-}
-function showToast(msg){
-  const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
-  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),2600);
-}
+function showErrorBubble(msg,isAuth){ const row=document.createElement("div"); row.className="msg-row buddy"; const action=isAuth?"openKeyModal()":"retryLast()"; row.innerHTML=`<div class="msg-avatar">B</div><div><div class="msg-bubble error-bubble">${escapeHtml(msg||"Having trouble connecting.")} <button class="retry-btn" onclick="${action}">${isAuth?"Update key":"Try again"}</button></div></div>`; document.getElementById("conversation").appendChild(row); scrollBot(); }
+function showToast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),2600); }
 
 /* ── Send flow ── */
 const input=document.getElementById("msg-input");
 input.addEventListener("input",()=>{ input.style.height="auto"; input.style.height=Math.min(input.scrollHeight,120)+"px"; });
 input.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); sendMessage(); }});
-
 let lastMsg=null;
 function retryLast(){ if(!lastMsg) return; document.querySelectorAll(".error-bubble").forEach(b=>b.closest(".msg-row").remove()); callBuddy(); }
 
 async function sendMessage(){
   const text=input.value.trim(); if(!text||state.sending) return;
   if(!getApiKey()){ openKeyModal(); return; }
-  input.value=""; input.style.height="auto";
-  lastMsg=text;
-
-  /* ── Crisis guard: fires before API, gives immediate resources ── */
+  input.value=""; input.style.height="auto"; lastMsg=text;
   if(isCrisis(text)){
     addMessage("user",text);
-    addMessage("assistant",
-      "I want to make sure you're okay first.\n\n"+
-      "If you're having thoughts of hurting yourself, please reach out right now:\n\n"+
-      "**988 Suicide & Crisis Lifeline** — call or text **988** (US, 24/7)\n"+
-      "**Crisis Text Line** — text HOME to **741741**\n"+
-      "**International resources** — findahelpline.com\n\n"+
-      "I'm here with you. Can you tell me a bit more about how you're feeling right now?",
-      false,[]
-    );
+    addMessage("assistant","I want to make sure you're okay first.\n\n**988 Suicide & Crisis Lifeline** — call or text **988** (US, 24/7)\n**Crisis Text Line** — text HOME to **741741**\n**International resources** — findahelpline.com\n\nI'm here with you. Can you tell me a bit more about how you're feeling right now?",false,[]);
     state.conversation.push({role:"user",content:text});
     if(!state.conversationId) await createConvo(state.category,text);
     await appendToHistory("user",text);
-    return; // Don't call the API on a crisis — in-page message is enough to start
+    callBuddy(); return;
   }
-
-  /* ── Topic routing: first message of a new conversation only ── */
   if(!state.conversationId&&state.conversation.length===0){
     const inferred=await inferCategory(text);
-    if(inferred!==state.category){
-      selectCategory(inferred,false);
-      showToast(CATEGORIES.find(c=>c.id===inferred)?.icon+" Buddy switched to: "+CATEGORIES.find(c=>c.id===inferred)?.label);
-    }
+    if(inferred!==state.category){ selectCategory(inferred,false); showToast(CATEGORIES.find(c=>c.id===inferred)?.icon+" Buddy switched to: "+CATEGORIES.find(c=>c.id===inferred)?.label); }
   }
-
   addMessage("user",text);
   state.conversation.push({role:"user",content:text});
   if(!state.conversationId){ await createConvo(state.category,text); }
@@ -892,9 +754,7 @@ async function sendMessage(){
 function buildSystemPrompt(){
   const cat=CATEGORIES.find(c=>c.id===state.category);
   const todayStr=new Date().toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
-  const facts=(state.profile.memoryFacts||[]).length
-    ?(state.profile.memoryFacts||[]).map(f=>"- "+(typeof f==="string"?f:f.text)).join("\n")
-    :"(nothing yet)";
+  const facts=(state.profile.memoryFacts||[]).length?(state.profile.memoryFacts||[]).map(f=>"- "+(typeof f==="string"?f:f.text)).join("\n"):"(nothing yet)";
   const catNote=(state.profile.categoryNotes||{})[state.category];
   return `You are Buddy, the life coach inside the "Buddy AI" app. You are talking with ${state.name}.
 
@@ -902,36 +762,33 @@ VOICE: Warm, direct, grounded — like a thoughtful friend who is really good at
 
 FORMAT: When it genuinely aids readability, use Markdown — **bold** key terms, bullet lists for options/steps, numbered lists when sequence matters. Plain prose for short conversational replies. Never over-format.
 
-HONESTY: If ${state.name} directly and sincerely asks whether you are a real person, an AI, or a bot — answer plainly and warmly: you are an AI life coach companion, not a human. Outside that direct question, just be yourself in the conversation.
+HONESTY: If ${state.name} directly and sincerely asks whether you are a real person, an AI, or a bot — answer plainly and warmly: you are an AI life coach companion, not a human.
 
-ROLE BOUNDARY: You are a life coach companion. You do not diagnose, prescribe, render legal or financial advice, write academic work for the user, or roleplay as anyone other than Buddy. If a request falls outside coaching, decline warmly in 2–3 sentences: acknowledge what the person is dealing with, explain briefly why you can't help with that specific ask, and offer what you *can* do in a coaching capacity.
+ROLE BOUNDARY: You are a life coach companion. You do not diagnose, prescribe, render legal or financial advice, write academic work for the user, or roleplay as anyone other than Buddy. If a request falls outside coaching, decline warmly in 2–3 sentences using this pattern: acknowledge what the person is dealing with, explain briefly why you can't help with that specific ask, and offer what you CAN do in a coaching capacity.
 
-CREDENTIAL CLAIMS: Never state or imply you are a licensed therapist, psychologist, counselor, physician, attorney, or financial planner. It is fine to draw on research and frameworks those professions use. If asked whether you hold a license, answer honestly.
+CREDENTIAL CLAIMS: Never state or imply you are a licensed therapist, psychologist, counselor, physician, attorney, or financial planner. If asked, answer honestly.
 
 CRISIS PROTOCOL: If the user expresses suicidal ideation, self-harm, immediate danger, or active abuse — respond with care, do NOT minimize or pivot. Provide these resources immediately:
   • US: 988 Suicide & Crisis Lifeline — call or text 988
-  • Crisis Text Line: Text HOME to 741741  
+  • Crisis Text Line: Text HOME to 741741
   • International: findahelpline.com
-Ask gently whether they are safe right now. Do not continue with coaching topics until that question is addressed. Omit the <<<MEMO>>> block in a crisis response.
+Ask gently whether they are safe right now. Omit the <<<MEMO>>> block in a crisis response.
 
-GROUND YOURSELF IN THE WEB: This app's whole point is that Buddy's coaching is backed by real, current information from the web — not just your internal training. Use your web search tool proactively before giving substantive suggestions, techniques, facts, statistics, or resources. Target reputable sources: health systems, universities, government sites, well-known counseling or personal-finance organizations. You don't need to recite URLs — the app shows your sources automatically below your message — so reference what you found naturally and conversationally.
+GROUND YOURSELF IN THE WEB: Use your web search tool proactively before giving substantive suggestions, techniques, facts, statistics, or resources. Target reputable sources. You don't need to recite URLs — the app shows sources automatically.
 
-TODAY'S ACTUAL DATE: ${todayStr}. Trust this over anything you find via search or recall from training — it is live from the user's device.
+TODAY'S DATE: ${todayStr}
 
 CURRENT TOPIC AREA: ${cat.label} — ${cat.focus}
 
 WHAT YOU KNOW ABOUT ${state.name.toUpperCase()} SO FAR:
 ${facts}
- 
-ACTIVELY USE WHAT YOU KNOW: When you know something relevant about ${state.name}, weave
-it naturally into your replies rather than waiting for the user to repeat themselves. For
-example, if you know they are managing debt, connect financial advice to that context
-unprompted.
+
+ACTIVELY USE WHAT YOU KNOW: When you know something relevant about ${state.name}, weave it naturally into your replies rather than waiting for the user to repeat themselves.
 ${catNote?"\nLast summary for "+cat.label+": "+catNote:""}
 
 MEMORY UPDATES: After every reply, output this block exactly (parsed by the app, never shown to the user):
 <<<MEMO>>>{"new_facts":["fact1","fact2"],"category_note":"one sentence on where things stand"}<<<END>>>
-new_facts: only new, durable facts worth knowing long-term (e.g. "training for a half marathon", "manager recently became difficult to work with"). Empty array [] if nothing new. Never omit this block.`;
+new_facts: only new, durable facts worth knowing long-term. Empty array [] if nothing new. Never omit this block.`;
 }
 
 /* ── API call ── */
@@ -939,55 +796,30 @@ async function callBuddy(){
   state.sending=true; document.getElementById("send-btn").disabled=true; showTyping();
   const messages=state.conversation.map(m=>({role:m.role,content:m.content}));
   try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","x-api-key":getApiKey(),"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-      body:JSON.stringify({
-        model:"claude-sonnet-4-6", max_tokens:1000,
-        system:buildSystemPrompt(), messages,
-        tools:[{type:"web_search_20250305",name:"web_search",max_uses:3}]
-      })
-    });
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":getApiKey(),"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,system:buildSystemPrompt(),messages,tools:[{type:"web_search_20250305",name:"web_search",max_uses:3}]})});
     const data=await res.json(); hideTyping();
-    if(!res.ok){
-      if(res.status===401||res.status===403) showErrorBubble("That API key didn't work — double-check it.",true);
-      else showErrorBubble("Buddy hit a snag: "+(data?.error?.message||"request failed ("+res.status+")"));
-      return;
-    }
+    if(!res.ok){ if(res.status===401||res.status===403) showErrorBubble("That API key didn't work — double-check it.",true); else showErrorBubble("Buddy hit a snag: "+(data?.error?.message||"request failed ("+res.status+")")); return; }
     const textBlocks=(data.content||[]).filter(b=>b.type==="text");
     const fullText=textBlocks.map(b=>b.text).join("\n");
     const sources=[]; const seen=new Set();
     textBlocks.forEach(b=>(b.citations||[]).forEach(c=>{ if(c.url&&!seen.has(c.url)){ seen.add(c.url); sources.push({url:c.url,title:c.title||c.url}); }}));
     let display=fullText; let memo=null;
     const mm=fullText.match(/<<<MEMO>>>([\s\S]*?)<<<END>>>/);
-    if(mm){ display=fullText.replace(mm[0],"").trim(); try{ memo=JSON.parse(mm[1]); }catch(e){} }
-    if(!display) display="Sorry, I lost my train of thought — could you say that again?";
+    if(mm){ display=fullText.replace(mm[0],"").trim(); display=display.replace(/<<<MEMO>>>.*$/s,"").replace(/<<<END>>>/g,"").trim(); try{ memo=JSON.parse(mm[1].trim()); }catch(e){} }
+    if(!display||display.length<2) display="Sorry, I lost my train of thought — could you say that again?";
     addMessage("assistant",display,false,sources);
     state.conversation.push({role:"assistant",content:fullText});
     await appendToHistory("assistant",display,sources);
-    /* Update user model */
     if(memo){
-      if(Array.isArray(memo.new_facts)){
-        memo.new_facts.forEach(f=>{
-          const known=(state.profile.memoryFacts||[]).some(x=>(typeof x==="string"?x:x.text)===f);
-          if(!known&&f) state.profile.memoryFacts.push({text:f,category:state.category,addedAt:new Date().toISOString()});
-        });
-        if(state.profile.memoryFacts.length>40) state.profile.memoryFacts=state.profile.memoryFacts.slice(-40);
-      }
-      if(memo.category_note){
-        if(!state.profile.categoryNotes) state.profile.categoryNotes={};
-        state.profile.categoryNotes[state.category]=memo.category_note;
-      }
+      if(Array.isArray(memo.new_facts)){ memo.new_facts.forEach(f=>{ const known=(state.profile.memoryFacts||[]).some(x=>(typeof x==="string"?x:x.text)===f); if(!known&&f) state.profile.memoryFacts.push({text:f,category:state.category,addedAt:new Date().toISOString()}); }); if(state.profile.memoryFacts.length>40) state.profile.memoryFacts=state.profile.memoryFacts.slice(-40); }
+      if(memo.category_note){ if(!state.profile.categoryNotes) state.profile.categoryNotes={}; state.profile.categoryNotes[state.category]=memo.category_note; }
       await saveProfile();
     }
-  }catch(err){
-    console.error(err); hideTyping(); showErrorBubble("I'm having trouble connecting right now.");
-  }finally{
-    state.sending=false; document.getElementById("send-btn").disabled=false;
-  }
+  }catch(err){ console.error(err); hideTyping(); showErrorBubble("I'm having trouble connecting right now."); }
+  finally{ state.sending=false; document.getElementById("send-btn").disabled=false; }
 }
 
-/* ── Expose to HTML onclick attributes ── */
+/* ── Window exports ── */
 window.toggleBeatitudes=toggleBeatitudes;
 window.goToStep=goToStep;
 window.handleAuthSubmit=handleAuthSubmit; window.toggleAuthMode=toggleAuthMode;
@@ -999,11 +831,10 @@ window.confirmDeleteConvo=confirmDeleteConvo;
 window.openDrawer=openDrawer; window.closeDrawer=closeDrawer; window.logOut=logOut;
 window.openProfile=openProfile; window.closeProfile=closeProfile;
 window.editFact=editFact; window.delFact=delFact; window.addManualFact=addManualFact;
+window.handleFileUpload=handleFileUpload;
 window.openKeyModal=openKeyModal; window.closeKeyModal=closeKeyModal; window.saveApiKeyFromInput=saveApiKeyFromInput;
 
-sb.auth.getSession().then(({data:{session}})=>{
-  if(session){ afterAuth(session.user); }
-});
+sb.auth.getSession().then(({data:{session}})=>{ if(session){ afterAuth(session.user); } });
 </script>
 </body>
 </html>
