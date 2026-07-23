@@ -1,132 +1,200 @@
 # Buddy AI — AI-Powered Life Coach
 
-A single-file, zero-dependency web app that delivers personalized life coaching through a conversational interface powered by the Anthropic API. Built as a functional prototype demonstrating real-time AI coaching across eight life domains, with web-grounded responses, persistent user modeling, automatic topic classification, and account-based cross-device sync.
+A web app that delivers personalized life coaching through a conversational interface powered by the Anthropic API. Built as a functional prototype with real user accounts, cloud-synced conversation history, web-grounded responses, and a user model that learns from both conversation and uploaded documents.
 
-## Live Demo
+---
 
-Deploy by dropping `buddy-ai-v2.html` on any static host (GitHub Pages, Netlify, Vercel). No build step required.
+## Live App
+
+**[https://wdboone.github.io/revised-buddyai-v2/](https://wdboone.github.io/revised-buddyai-v2/)**
+
+Sign up with an email and password. Your conversations and profile sync across any device you log in from.
+
+---
 
 ## Features
 
 | Feature | Status | Notes |
-| --- | --- | --- |
-| **Markdown rendering** | ✅ Live | marked + DOMPurify via CDN |
-| **Chat history** | ✅ Live | Supabase Postgres — synced to your account |
+|---|---|---|
+| **Markdown rendering** | ✅ Live | `marked` + `DOMPurify` via CDN |
+| **User accounts** | ✅ Live | Email/password via Supabase Auth |
+| **Chat history** | ✅ Live | Persisted in Supabase Postgres, synced across devices |
 | **Topic routing** | ✅ Live | Auto-classification via Claude Haiku |
-| **Role alignment & guardrails** | ✅ Live | System prompt + regex pre-check |
-| **User modeling** | ✅ Live | Persistent fact extraction with view/edit UI |
-| **Web-grounded responses** | ✅ Live | Anthropic web_search tool, up to 3 searches/reply |
-| **User accounts (email/password)** | ✅ Live | Supabase Auth |
-| **Cross-device conversation sync** | ✅ Live | Supabase Postgres with Row-Level Security |
-| **Server-side API proxy** | ⏳ Planned | Supabase Edge Function — keeps the Anthropic key off the browser |
-| **Per-user rate limiting** | ⏳ Planned | Enforced at the Edge Function level |
+| **Role alignment & guardrails** | ✅ Live | System prompt + client-side crisis pre-check |
+| **User modeling** | ✅ Live | Fact extraction from conversation + view/edit profile panel |
+| **File upload → fact extraction** | ✅ Live | `.txt` and `.md` files; AI extracts personal facts on upload |
+| **Web-grounded responses** | ✅ Live | Anthropic `web_search` tool, up to 3 searches per reply |
+| **Server-side API key** | ✅ Live | Anthropic key stored in Supabase Edge Function secret — never in the browser |
+| **PDF file upload** | ⏳ Planned | Requires `pdf.js` — deferred to next release |
+
+---
 
 ## Architecture
 
 ```
-buddy-ai-v2.html
+index.html  (single-file frontend)
 │
-├── UI Layer          Vanilla JS + CSS custom properties (no framework)
-├── Markdown          marked@12 + DOMPurify@3 (CDN, no npm)
-├── Auth              Supabase Auth — email/password, session persistence
-├── Persistence       Supabase Postgres (profile, history) + localStorage (API key only)
-├── Topic Router      Claude Haiku — lightweight classification call
-├── Coaching Engine   Claude Sonnet 4.6 — with web_search tool (max 3/reply)
-└── User Model        MEMO block parsed from assistant replies → stored facts
+├── UI Layer          Vanilla JS + CSS custom properties
+├── Markdown          marked@12 + DOMPurify@3 (CDN)
+├── Auth              Supabase Auth (email/password, session persistence)
+├── Database          Supabase Postgres (profiles + conversations, RLS enforced)
+├── Topic Router      Claude Haiku — lightweight first-message classification
+├── Edge Function     Supabase Edge Function — holds the Anthropic API key server-side
+└── Coaching Engine   Claude Sonnet 4.6 — with web_search tool (max 3/reply)
 ```
 
 **Key architectural decisions:**
 
-- **No build step.** The entire app is a single `.html` file with CDN-loaded dependencies. This makes GitHub Pages deployment trivial and keeps the prototype shareable as a raw file.
-- **Two-model strategy.** Topic classification uses `claude-haiku-4-5-20251001` (fast, ~25× cheaper per token than Sonnet) while coaching uses `claude-sonnet-4-6`. This keeps latency and cost reasonable for a prototype.
-- **Structured memory extraction.** Each assistant reply includes a hidden `<<<MEMO>>>` JSON block that the client parses to extract durable facts and category notes. This avoids a separate summarization call and keeps the user model updated incrementally.
-- **Account-based persistence with Row-Level Security.** Profile and conversation data are stored in Supabase Postgres, scoped per user via RLS policies — a signed-in user's data is only ever reachable by that user, enforced at the database layer, not just in application code.
-- **Direct browser → Anthropic API.** The `anthropic-dangerous-direct-browser-access` header enables this for prototyping. A future update will move this behind a Supabase Edge Function so the key never touches the browser.
+- **No build step.** The entire frontend is a single `index.html` with CDN-loaded dependencies. Deployable to any static host instantly.
+- **Server-side API key.** The Anthropic API key lives in a Supabase Edge Function secret. The browser never sees or transmits it. All AI calls route through the Edge Function, which verifies the user's session before forwarding the request.
+- **Two-model strategy.** Topic classification uses `claude-haiku-4-5-20251001` (fast, low cost) while coaching uses `claude-sonnet-4-6` (full capability). This keeps latency and cost reasonable.
+- **Incremental user modeling.** Each assistant reply includes a hidden `<<<MEMO>>>` JSON block that the client parses to extract durable facts. Facts are stored in Supabase and injected back into the system prompt on future conversations — without a separate summarization call.
+- **Row-Level Security.** Every Supabase table has RLS policies ensuring users can only ever read and write their own data. This applies automatically to conversation history, profile facts, and any facts extracted from uploaded files.
 
-## Setup
+---
 
-### 1. Get an Anthropic API key
+## Setup — For Users
 
-Create one at [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys). Standard API usage rates apply.
+**1.** Open the live app: [https://wdboone.github.io/revised-buddyai-v2/](https://wdboone.github.io/revised-buddyai-v2/)
 
-### 2. Set up Supabase
+**2.** Click **Get started** → **Create your account** → enter your email and password.
 
-Create a project at [supabase.com](https://supabase.com), then run the schema + Row-Level Security setup SQL (see `BUDDY_AI_V2_UPGRADE_GUIDE.md`) in the SQL Editor. Copy your Project URL and anon/publishable key into the `SUPABASE_URL` and `SUPABASE_ANON_KEY` constants near the top of the `<script>` block in `buddy-ai-v2.html`.
+**3.** Check your email for a confirmation link and click it. You will be brought back to the app and logged in automatically.
 
-### 3. Deploy
+**4.** Start talking to Buddy. That's it — no API keys, no setup, no configuration.
 
-**GitHub Pages (recommended for demo):**
+---
 
+## Setup — For Developers (deploying your own instance)
+
+**1. Supabase project**
+
+- Create a project at [supabase.com](https://supabase.com)
+- Run the SQL schema below in the SQL Editor
+- Under Authentication → URL Configuration, set **Site URL** to your deployment URL
+- Under Authentication → Providers → Email, configure email confirmation settings as needed
+
+**2. Database schema**
+
+```sql
+create table profiles (
+  user_id        uuid primary key references auth.users(id) on delete cascade,
+  first_met      timestamptz,
+  last_seen      timestamptz,
+  session_count  int default 0,
+  memory_facts   jsonb default '[]',
+  category_notes jsonb default '{}'
+);
+
+create table conversations (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid references auth.users(id) on delete cascade not null,
+  title      text not null default 'New conversation',
+  category   text not null default 'general',
+  messages   jsonb default '[]',
+  updated_at timestamptz default now()
+);
+
+alter table profiles      enable row level security;
+alter table conversations enable row level security;
+
+create policy "own profile"       on profiles      for all using (auth.uid() = user_id);
+create policy "own conversations" on conversations for all using (auth.uid() = user_id);
 ```
-1. Push buddy-ai-v2.html to your repo
-2. Settings → Pages → Deploy from branch → select main / root
-3. Visit https://<your-username>.github.io/<repo-name>/buddy-ai-v2.html
+
+**3. Supabase Edge Function**
+
+- Go to Edge Functions → Deploy a new function → name it `chat`
+- Paste in the Edge Function code (see `/supabase/functions/chat/index.ts` or the Issue #11 reference guide)
+- Under Edge Functions → Secrets, add: `ANTHROPIC_API_KEY` = your `sk-ant-...` key
+
+**4. Frontend configuration**
+
+In `index.html`, update these two lines near the top of the script block:
+
+```js
+const SUPABASE_URL  = "https://your-project-id.supabase.co";
+const SUPABASE_ANON_KEY = "your-anon-key-here";
 ```
 
-**Local:**
+**5. Deploy**
 
-```bash
-# Any static server works — Python's built-in is the simplest
-python3 -m http.server 8080
-# Open http://localhost:8080/buddy-ai-v2.html
-```
+Upload `index.html` to any static host — GitHub Pages, Vercel, or Netlify. No build step required.
 
-### 4. Connect your key
-
-On first load, click the ⚙ icon and paste your `sk-ant-...` key. It is stored only in your browser's localStorage and sent directly to Anthropic — it never touches Supabase or any intermediate server.
+---
 
 ## Life Coaching Domains
 
 | Category | Focus |
-| --- | --- |
+|---|---|
 | 💬 Just Talk | Open-ended — Buddy follows wherever the conversation goes |
 | ❤️ Relationships | Partners, family, friendships, conflict, boundaries |
 | 💼 Career & Direction | Job search, transitions, burnout, purpose in work |
 | 💰 Finances | Budgeting mindset, debt, financial goal-setting (frameworks only — not financial advice) |
 | 👨‍👩‍👧 Parenting & Family | Raising children, co-parenting, family dynamics |
 | 🙏 Faith & Spiritual Guidance | Meaning, values, doubt, spiritual practice |
-| 🤝 Workplace Ethics | Ethical dilemmas, conflict with coworkers/managers, integrity |
-| 🌱 Personal Growth | Character, habits, self-discipline — anchored to the Beatitudes (Matt 5:3-10) as a character framework |
+| 🤝 Workplace Ethics | Ethical dilemmas, conflict with coworkers or managers, integrity |
+| 🌱 Personal Growth | Character, habits, self-discipline — anchored to the Beatitudes (Matt 5:3–10) as a character compass |
+
+---
 
 ## Role Boundaries & Safety
 
 Buddy operates under explicit system-prompt guardrails:
 
 - **No credential claims** — will not represent itself as a licensed therapist, physician, attorney, or financial advisor
-- **Out-of-scope deflection** — declines requests outside a coaching context with a warm redirect
+- **Out-of-scope deflection** — declines requests outside coaching with a warm redirect using a defined pattern: acknowledge → explain → redirect
 - **Crisis protocol** — detects distress signals via regex pre-check (fires before the API call) and includes 988 / Crisis Text Line resources immediately; the system prompt reinforces this at the model level
 - **AI disclosure** — answers honestly if directly asked whether it is a real person
+
+---
 
 ## Data & Privacy
 
 | Data | Where it lives | Shared? |
-| --- | --- | --- |
-| Your name / email | Supabase (tied to your account) | No — visible only to you, enforced by Row-Level Security |
-| Conversation history | Supabase Postgres | No — protected by the same Row-Level Security policies |
-| Extracted user facts | Supabase Postgres | No — protected by the same Row-Level Security policies |
-| API key | localStorage (this browser only) | No — sent only to api.anthropic.com |
+|---|---|---|
+| Your email and account | Supabase Auth | No — private to your account |
+| Conversation history | Supabase Postgres (RLS) | No — only accessible when logged in as you |
+| Profile facts | Supabase Postgres (RLS) | No — only accessible when logged in as you |
+| Anthropic API key | Supabase Edge Function secret | No — never touches the browser |
 
-Conversation history and extracted facts now sync across devices via your account — log in from any device to pick up where you left off. Clearing browser storage no longer erases your data; it only clears your locally-stored Anthropic API key, which you'll need to re-enter. The Anthropic API key itself remains browser-local and is never sent to or stored in Supabase.
+The Anthropic API key is stored as an encrypted server-side secret. It is never stored in the browser, never transmitted from the browser, and never visible to users.
 
-## Roadmap — Remaining Work
-
-The following features still require additional backend work:
-
-- [ ] **Server-side API proxy** — move the Anthropic key behind a Supabase Edge Function so the browser never holds it directly
-- [ ] **Per-user rate limiting** — enforced at the Edge Function level
-
-See [BUDDY_AI_V2_UPGRADE_GUIDE.md](https://github.com/wdboone/revised-buddyai-v2/blob/main/BUDDY_AI_V2_UPGRADE_GUIDE.md) for the full step-by-step implementation plan.
+---
 
 ## Tech Stack
 
 | Layer | Technology |
-| --- | --- |
+|---|---|
 | UI | Vanilla HTML/CSS/JS — no framework |
-| Markdown | [marked](https://github.com/markedjs/marked) + DOMPurify |
-| Auth & Database | Supabase (Auth + Postgres with Row-Level Security) |
-| AI (coaching) | claude-sonnet-4-6 with web_search_20250305 tool |
-| AI (routing) | claude-haiku-4-5-20251001 |
-| Persistence | Supabase Postgres (profile, history) + browser localStorage (API key) |
-| Hosting | GitHub Pages / any static host |
+| Markdown | [marked](https://github.com/markedjs/marked) + [DOMPurify](https://github.com/cure53/DOMPurify) |
+| Auth & Database | [Supabase](https://supabase.com) (Auth + Postgres + Edge Functions) |
+| API proxy | Supabase Edge Function (Deno/TypeScript) |
+| AI — coaching | `claude-sonnet-4-6` with `web_search_20250305` tool |
+| AI — routing & file extraction | `claude-haiku-4-5-20251001` |
+| Hosting | GitHub Pages |
+
+---
+
+## Team
+
+| Name | Role |
+|---|---|
+| Willie Boone | Lead developer — architecture, code, database design, deployment |
+| Hunter Phillips | QA, user testing, issue tracking, developer advisory |
+
+---
+
+## Project Context
+
+Built as a capstone prototype for the Master of Science in Applied Artificial Intelligence program, Studio II — Summer 2026.
+
+---
 
 ## License
+
+MIT — free to use, modify, and build on.
+
+---
+
+*Buddy AI is an AI life coach companion — not a substitute for licensed mental health, medical, legal, or financial services. If you are in crisis, call or text 988.*
