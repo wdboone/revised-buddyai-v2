@@ -16,7 +16,7 @@
 
 | Team member | Done since last standup | Plan before next standup | Blockers / help needed |
 |---|---|---|---|
-| Willie Boone | Fixed the email-confirmation redirect by adding `emailRedirectTo` in signUp, so new users land on the real host instead of a broken localhost link (#8); shipped file upload → fact extraction so the user model can be updated from uploaded files (#10). | Continue toward the server-side API-key proxy. | None. |
+| Willie Boone | Fixed the email-confirmation redirect by adding `emailRedirectTo` in signUp, so new users land on the real host instead of a broken localhost link (#8); shipped file upload → fact extraction so the user model can be updated from uploaded files (#10); moved the Anthropic API key server-side via a Supabase Edge Function so the browser no longer holds it (#11). | Support the guardrail-hardening implementation (#9 follow-up). | None. |
 | Hunter Phillips | Delivered the guardrail spike (#9): built a 43-case red-team suite over the app's real prompt and crisis regex, hardened it against an adversarial critique, ran the first live suite, and wrote up the results. Buddy refused 32 of 35 attacks; the crisis keyword regex caught 0 of 10 evasions. | Start implementing guardrail hardening from the spike's findings, at the prompt level first: an escalation-proof medication refusal, an explicit instruction hierarchy with spotlighted untrusted content, and a persist-only-stated-facts rule. | None. |
 
 ## 3. Board snapshot (GitHub Project)
@@ -30,8 +30,7 @@
 | Blocker / risk | Impact | Owner | Action to resolve | Status |
 |---|---|---|---|---|
 | Crisis keyword regex catches 0 of 10 evasions (algospeak, leetspeak, spacing, misspelling, non-English); the model backstop is the only crisis guardrail, and it is a prompt instruction, not enforced in code. | A missed crisis reaches a user with nothing between it and them. | Willie / team | Harden the prompt (instruction hierarchy + spotlight retrieved content) and add an output self-check before rendering (FINDINGS §3, rungs 1–2). | Open |
-| The LLM judge is not yet validated against human labels. | Absolute rates are directional only, not precise. | Hunter | Hand-label a small subset and report Cohen's kappa before quoting rates. | Open |
-| Anthropic API key is still held in the browser. | Fine for a demo, not safe for real users. | Willie | Move the key and calls behind a server-side proxy (roadmap). | Open |
+| Anthropic API key was held in the browser. | Fine for a demo, not safe for real users. | Willie | Moved server-side via a Supabase Edge Function (#11). | Resolved |
 
 ## 5. Decisions made
 
@@ -45,8 +44,7 @@
 
 | Action / next step | Owner | Due | Link (PR / issue / story) |
 |---|---|---|---|
-| Validate the judge against a human-labeled subset; report Cohen's kappa. | Hunter | Next standup | https://github.com/wdboone/revised-buddyai-v2/issues/9 |
-| Test the real web-search injection channel (not just simulated retrieved content). | Hunter | Next standup | https://github.com/wdboone/revised-buddyai-v2/issues/9 |
+| Start implementing guardrail hardening from the spike's findings: prompt-level defenses first (escalation-proof medication refusal, instruction hierarchy with spotlighted untrusted content, persist-only-stated-facts rule), then an output self-check. | Hunter / team | Next standup | https://github.com/wdboone/revised-buddyai-v2/issues/9 |
 | Harden the prompt and add an output self-check to close the top guardrail gaps. | Willie / team | Next standup | https://github.com/wdboone/revised-buddyai-v2/issues |
 | Continue toward the server-side API-key proxy. | Willie | Next standup | https://github.com/wdboone/revised-buddyai-v2/issues |
 
