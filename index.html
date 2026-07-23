@@ -245,20 +245,11 @@ a{color:inherit;}
 <div id="mobile-topbar">
   <button class="hamburger" onclick="openDrawer()">☰</button>
   <div class="mobile-brand"><span class="dot"></span>Buddy AI</div>
-  <button class="hamburger" onclick="openKeyModal()" title="Settings">⚙</button>
+  <button class="hamburger" style="opacity:0;pointer-events:none;">⚙</button>
 </div>
 <div id="drawer-overlay" onclick="closeDrawer()"></div>
 
-<div class="modal-overlay" id="key-modal-overlay" onclick="if(event.target===this)closeKeyModal()">
-  <div class="modal-card">
-    <h2>Connect Buddy AI</h2>
-    <p class="modal-text">Buddy needs an Anthropic API key to think and respond. Your key is saved only in this browser on this device and sent directly to Anthropic — nowhere else.</p>
-    <input type="password" id="key-input" class="name-input" placeholder="sk-ant-…" autocomplete="off"/>
-    <button class="btn-primary" onclick="saveApiKeyFromInput()">Save key</button>
-    <p class="modal-foot">Don't have one? Get one free at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>.</p>
-    <button class="modal-skip" onclick="closeKeyModal()">Not now</button>
-  </div>
-</div>
+<!-- API key modal removed — key now lives server-side in Supabase Edge Function -->
 
 <div id="profile-overlay" onclick="if(event.target===this)closeProfile()">
   <div id="profile-panel">
@@ -455,21 +446,22 @@ async function confirmDeleteConvo(id){
 /* ── Topic routing ── */
 const VALID_CATS=CATEGORIES.map(c=>c.id);
 async function inferCategory(text){
-  const key=getApiKey(); if(!key||text.length<8) return state.category;
+  if(text.length<8) return state.category;
   try{
-    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:10,messages:[{role:"user",content:`Classify this life-coaching message into exactly one category:\ngeneral | relationships | career | finances | parenting | faith | ethics | growth\nReply with ONLY the category word.\n\nMessage: "${text.slice(0,300)}"`}]})});
+    const auth=await getAuthHeader(); if(!auth) return state.category;
+    const r=await fetch(CHAT_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json","Authorization":auth},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:10,messages:[{role:"user",content:`Classify this life-coaching message into exactly one category:\ngeneral | relationships | career | finances | parenting | faith | ethics | growth\nReply with ONLY the category word.\n\nMessage: "${text.slice(0,300)}"`}]})});
     const d=await r.json();
     const label=(d.content?.[0]?.text||"").trim().toLowerCase();
     return VALID_CATS.includes(label)?label:state.category;
   }catch(e){ return state.category; }
 }
 
-/* ── API key ── */
-const getApiKey=()=>{ try{ return (localStorage.getItem("buddyai_api_key")||"").trim(); }catch(e){ return ""; } };
-const setKey=k=>{ try{ localStorage.setItem("buddyai_api_key",k); }catch(e){}};
-function openKeyModal(){ document.getElementById("key-input").value=getApiKey(); document.getElementById("key-modal-overlay").classList.add("open"); setTimeout(()=>document.getElementById("key-input").focus(),150); closeDrawer(); }
-function closeKeyModal(){ document.getElementById("key-modal-overlay").classList.remove("open"); }
-function saveApiKeyFromInput(){ const v=document.getElementById("key-input").value.trim(); if(!v) return; setKey(v); closeKeyModal(); }
+/* ── Edge Function endpoint (key lives server-side) ── */
+const CHAT_ENDPOINT = `${SUPABASE_URL}/functions/v1/chat`;
+async function getAuthHeader(){
+  const { data:{ session } } = await sb.auth.getSession();
+  return session ? `Bearer ${session.access_token}` : null;
+}
 
 /* ── Auth ── */
 function goToStep(s){ document.querySelectorAll(".onboard-step").forEach(x=>x.classList.remove("active")); document.getElementById("step-"+s).classList.add("active"); }
@@ -529,7 +521,6 @@ async function afterAuth(user){
   document.getElementById("onboarding").style.display="none";
   buildNav();
   selectCategory("general",true,isReturning);
-  if(!getApiKey()) openKeyModal();
 }
 
 /* ── Nav ── */
@@ -549,7 +540,6 @@ function navMarkup(){
         <div><div class="side-user-name">${escapeHtml(state.name)}</div><div class="side-user-sub">${state.profile.sessionCount>1?"Visit #"+state.profile.sessionCount:"First visit"}</div></div>
       </div>
       <a class="side-link" onclick="openProfile()">👤 What Buddy knows about me</a>
-      <a class="side-gear" onclick="openKeyModal()">⚙ API key settings</a>
       <a class="side-link" onclick="logOut()">Log out</a>
     </div>`;
 }
@@ -612,7 +602,6 @@ function handleFileUpload(event){
   const files=Array.from(event.target.files);
   event.target.value=""; // reset so the same file can be re-uploaded
   if(!files.length) return;
-  if(!getApiKey()){ openKeyModal(); return; }
   files.forEach(file=>{
     if(!/\.(txt|md)$/i.test(file.name)){ showToast("Only .txt and .md files are supported."); return; }
     if(file.size>51200){ showToast(`${file.name} is too large — keep files under 50 KB.`); return; }
@@ -647,9 +636,9 @@ ${text.slice(0,8000)}
 ---`;
 
   try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{
+    const res=await fetch(CHAT_ENDPOINT,{
       method:"POST",
-      headers:{"Content-Type":"application/json","x-api-key":getApiKey(),"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      headers:{"Content-Type":"application/json","Authorization":auth},
       body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:800,messages:[{role:"user",content:prompt}]})
     });
     const data=await res.json();
@@ -717,7 +706,7 @@ function addMessage(role,text,skipScroll,sources=[]){
 function showTyping(){ const row=document.createElement("div"); row.className="msg-row buddy typing-row"; row.id="typing-indicator"; row.innerHTML=`<div class="msg-avatar">B</div><div class="msg-bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-label">checking the web…</span></div>`; document.getElementById("conversation").appendChild(row); scrollBot(); }
 function hideTyping(){ const e=document.getElementById("typing-indicator"); if(e) e.remove(); }
 function scrollBot(){ requestAnimationFrame(()=>{ document.getElementById("conversation-wrap").scrollTop=99999; }); }
-function showErrorBubble(msg,isAuth){ const row=document.createElement("div"); row.className="msg-row buddy"; const action=isAuth?"openKeyModal()":"retryLast()"; row.innerHTML=`<div class="msg-avatar">B</div><div><div class="msg-bubble error-bubble">${escapeHtml(msg||"Having trouble connecting.")} <button class="retry-btn" onclick="${action}">${isAuth?"Update key":"Try again"}</button></div></div>`; document.getElementById("conversation").appendChild(row); scrollBot(); }
+function showErrorBubble(msg){ const row=document.createElement("div"); row.className="msg-row buddy"; row.innerHTML=`<div class="msg-avatar">B</div><div><div class="msg-bubble error-bubble">${escapeHtml(msg||"Having trouble connecting.")} <button class="retry-btn" onclick="retryLast()">Try again</button></div></div>`; document.getElementById("conversation").appendChild(row); scrollBot(); }
 function showToast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),2600); }
 
 /* ── Send flow ── */
@@ -729,7 +718,6 @@ function retryLast(){ if(!lastMsg) return; document.querySelectorAll(".error-bub
 
 async function sendMessage(){
   const text=input.value.trim(); if(!text||state.sending) return;
-  if(!getApiKey()){ openKeyModal(); return; }
   input.value=""; input.style.height="auto"; lastMsg=text;
   if(isCrisis(text)){
     addMessage("user",text);
@@ -791,14 +779,16 @@ MEMORY UPDATES: After every reply, output this block exactly (parsed by the app,
 new_facts: only new, durable facts worth knowing long-term. Empty array [] if nothing new. Never omit this block.`;
 }
 
-/* ── API call ── */
+/* ── API call via Edge Function ── */
 async function callBuddy(){
   state.sending=true; document.getElementById("send-btn").disabled=true; showTyping();
   const messages=state.conversation.map(m=>({role:m.role,content:m.content}));
   try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":getApiKey(),"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,system:buildSystemPrompt(),messages,tools:[{type:"web_search_20250305",name:"web_search",max_uses:3}]})});
+    const auth=await getAuthHeader();
+    if(!auth){ hideTyping(); showErrorBubble("You need to be logged in for Buddy to respond."); return; }
+    const res=await fetch(CHAT_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json","Authorization":auth},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,system:buildSystemPrompt(),messages,tools:[{type:"web_search_20250305",name:"web_search",max_uses:3}]})});
     const data=await res.json(); hideTyping();
-    if(!res.ok){ if(res.status===401||res.status===403) showErrorBubble("That API key didn't work — double-check it.",true); else showErrorBubble("Buddy hit a snag: "+(data?.error?.message||"request failed ("+res.status+")")); return; }
+    if(!res.ok){ if(res.status===401||res.status===403) showErrorBubble("Connection error — please check your session and try again."); else showErrorBubble("Buddy hit a snag: "+(data?.error?.message||"request failed ("+res.status+")")); return; }
     const textBlocks=(data.content||[]).filter(b=>b.type==="text");
     const fullText=textBlocks.map(b=>b.text).join("\n");
     const sources=[]; const seen=new Set();
@@ -832,7 +822,7 @@ window.openDrawer=openDrawer; window.closeDrawer=closeDrawer; window.logOut=logO
 window.openProfile=openProfile; window.closeProfile=closeProfile;
 window.editFact=editFact; window.delFact=delFact; window.addManualFact=addManualFact;
 window.handleFileUpload=handleFileUpload;
-window.openKeyModal=openKeyModal; window.closeKeyModal=closeKeyModal; window.saveApiKeyFromInput=saveApiKeyFromInput;
+// API key modal removed — key lives in Supabase Edge Function secret
 
 sb.auth.getSession().then(({data:{session}})=>{ if(session){ afterAuth(session.user); } });
 </script>
