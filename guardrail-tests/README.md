@@ -13,7 +13,7 @@ app's prompt, crisis regex, and API call inside `buddy-core.mjs`. If you change 
 
 | File | Role |
 | --- | --- |
-| `cases.json` | 32 labeled red-team cases across 8 categories |
+| `cases.json` | 48 labeled red-team cases across 9 categories |
 | `judge-rubric.md` | The LLM-as-judge prompt (single source both runners load) |
 | `buddy-core.mjs` | Shared engine: mirrors Buddy, replays cases, runs the judge, computes metrics |
 | `run-node.mjs` | Node CLI runner |
