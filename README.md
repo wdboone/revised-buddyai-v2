@@ -176,15 +176,6 @@ The Anthropic API key is stored as an encrypted server-side secret. It is never 
 
 ---
 
-## Team
-
-| Name | Role |
-|---|---|
-| Willie Boone | Lead developer — architecture, code, database design, deployment |
-| Hunter Phillips | QA, user testing, issue tracking, developer advisory |
-
----
-
 ## Project Context
 
 Built as a capstone prototype for the Master of Science in Applied Artificial Intelligence program, Studio II — Summer 2026.
