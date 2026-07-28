@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buddy AI — Final Presentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EEF2EC; --paper-2:#E3E9DF; --ink:#243330; --ink-2:#4C5C56; --muted:#7d8b82;
+    --ember:#2E4A45; --ember-deep:#22372F; --ember-wash:rgba(46,74,69,.08);
+    --sage:#557A5C; --sage-wash:#E3EBE1;
+    --gold:#BD9A4B; --gold-text:#7A5E22; --sand:#FBF6E8; --sand-deep:#D8C4A0;
+    --good:#557A5C; --good-text:#3d6b47; --warning:#BD9A4B; --critical:#b0483f;
+    --hairline:#D9E0D6; --card:#FFFFFF;
+    --serif:'Fraunces',"Iowan Old Style",Palatino,Georgia,serif;
+    --sans:'Figtree',"Avenir Next",Avenir,"Segoe UI",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:var(--sans);background:var(--paper);color:var(--ink);overflow:hidden}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(circle at 18% 20%, rgba(107,143,113,.16), transparent 45%),
+      radial-gradient(circle at 85% 78%, rgba(189,154,75,.14), transparent 50%);
+  }
+  .brand-dot{width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#9FC2A4,#6B8F71);box-shadow:0 0 0 7px rgba(107,143,113,.14);margin-bottom:1.4rem}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;padding:3.4rem 5rem 4.4rem;overflow-y:auto;z-index:1}
+  .slide.active{display:flex}
+  .slide.active > *{animation:rise .5s cubic-bezier(.22,.7,.35,1) both}
+  .slide.active > *:nth-child(2){animation-delay:.06s}
+  .slide.active > *:nth-child(3){animation-delay:.12s}
+  .slide.active > *:nth-child(4){animation-delay:.18s}
+  .slide.active > *:nth-child(5){animation-delay:.24s}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.slide.active > *{animation:none}}
+
+  .kicker{font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ember-deep);font-weight:600;margin-bottom:.8rem}
+  h1{font-family:var(--serif);font-weight:600;font-size:4.4rem;line-height:1.04;letter-spacing:-.015em;max-width:16ch}
+  h2{font-family:var(--serif);font-weight:600;font-size:2.3rem;line-height:1.12;letter-spacing:-.01em;margin-bottom:1.5rem;max-width:28ch}
+  h2 em{font-style:italic;color:var(--ember)}
+  .lede{font-size:1.12rem;color:var(--ink-2);line-height:1.6;max-width:62ch}
+  .foot{margin-top:auto;padding-top:1.6rem;display:flex;gap:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--hairline)}
+  .rule{width:64px;height:3px;background:var(--ember);border-radius:2px;margin:1.4rem 0 1.6rem}
+
+  .card{background:var(--card);border:1px solid var(--hairline);border-radius:14px;padding:1.4rem 1.6rem;box-shadow:0 1px 0 rgba(33,27,20,.03)}
+  .cols-2{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;align-items:stretch}
+  .cols-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem}
+
+  .tag{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:.22rem .65rem;border-radius:999px}
+  .tag.dev{background:var(--ember-wash);color:var(--ember-deep);border:1px solid rgba(46,74,69,.35)}
+  .tag.res{background:var(--sand);color:var(--gold-text);border:1px solid var(--sand-deep)}
+  .tag.done{background:var(--sage-wash);color:var(--good-text);border:1px solid rgba(85,122,92,.4)}
+  .tag.added{background:var(--sand);color:var(--gold-text);border:1px solid var(--sand-deep)}
+  .tag.later{background:rgba(33,27,20,.06);color:var(--ink-2);border:1px solid var(--hairline)}
+
+  .person h3{font-family:var(--serif);font-size:1.6rem;margin:.7rem 0 .2rem}
+  .person .role{color:var(--ember-deep);font-weight:600;font-size:.95rem;margin-bottom:.8rem}
+  .person ul{margin:.4rem 0 0 1.05rem;color:var(--ink-2);line-height:1.65;font-size:.95rem}
+
+  .goal{display:grid;grid-template-columns:1fr max-content;gap:1.1rem;align-items:start;padding:1rem 1.2rem}
+  .goal + .goal{margin-top:.8rem}
+  .goal p{font-size:.98rem;line-height:1.55;color:var(--ink)}
+  .goal p .m{color:var(--ink-2)}
+  .goal .verdict{font-size:.82rem;font-weight:700;color:var(--good-text);white-space:nowrap;padding-top:.2rem}
+
+  .stories{display:grid;grid-template-columns:1fr 1fr;gap:.7rem 1.2rem}
+  .story{background:var(--card);border:1px solid var(--hairline);border-radius:8px;padding:1.1rem 1rem;display:flex;gap:.6rem;align-items:flex-start}
+  .story .oc{width:14px;height:14px;border-radius:50%;border:3px solid #1a7f37;flex-shrink:0;margin-top:.25rem}
+  .story .tt{font-size:.98rem;line-height:1.45;color:var(--ink);font-weight:500}
+  .story .ref{margin-left:auto;color:var(--muted);font-size:.78rem;font-family:ui-monospace,Menlo,monospace;white-space:nowrap;padding-top:.2rem}
+
+  /* timeline */
+  .tl{position:relative;margin:1.6rem 0 0;padding-left:0}
+  .tl-bar{position:absolute;left:2%;right:2%;top:11px;height:3px;background:linear-gradient(90deg,var(--ember),var(--gold));border-radius:2px}
+  .tl-weeks{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;position:relative}
+  .wk{padding-top:2rem;position:relative}
+  .wk::before{content:"";position:absolute;top:3px;left:0;width:19px;height:19px;border-radius:50%;
+    background:var(--paper);border:4px solid var(--ember)}
+  .wk.gold::before{border-color:var(--gold)}
+  .wk h4{font-family:var(--serif);font-size:1.08rem;margin-bottom:.15rem}
+  .wk .when{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+  .wk ul{list-style:none;font-size:.92rem;line-height:1.55;color:var(--ink-2)}
+  .wk li{padding-left:.9rem;position:relative;margin-bottom:.3rem}
+  .wk li::before{content:"•";position:absolute;left:0;color:var(--sage)}
+  .wk li b{color:var(--ink);font-weight:600}
+
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}
+  .split .card{padding:1rem 1.25rem}
+  .split h3{margin-bottom:.5rem;display:flex;align-items:center;gap:.6rem}
+  .split ul{list-style:none}
+  .split li{padding:.42rem 0 .42rem 1.05rem;border-bottom:1px dashed var(--hairline);font-size:.88rem;line-height:1.45;color:var(--ink-2);position:relative}
+  .split li:last-child{border-bottom:none}
+  .split li::before{position:absolute;left:0;font-weight:700}
+  .split .added-col li::before{content:"+";color:var(--gold-text)}
+  .split .later-col li::before{content:"→";color:var(--muted)}
+  .split li b{color:var(--ink);font-weight:600}
+
+  .demo-steps{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-top:.3rem}
+  .demo .who{display:flex;align-items:center;gap:.7rem;margin-bottom:.9rem}
+  .demo .who h3{font-family:var(--serif);font-size:1.35rem}
+  .demo ol{margin:.2rem 0 0 1.15rem;font-size:.93rem;line-height:1.6;color:var(--ink-2)}
+  .demo ol li{margin-bottom:.45rem}
+  .demo ol b{color:var(--ink);font-weight:600}
+  .proof{margin-top:.9rem;background:var(--sage-wash);border-left:3px solid var(--sage);border-radius:0 8px 8px 0;padding:.7rem .95rem;font-size:.85rem;color:var(--ink-2);line-height:1.5}
+  .proof b{color:var(--sage)}
+
+  .arch{display:flex;align-items:center;gap:.6rem;margin-top:1.4rem;flex-wrap:wrap;font-size:.85rem}
+  .arch .node{background:var(--card);border:1px solid var(--hairline);border-radius:10px;padding:.55rem .9rem;font-weight:600}
+  .arch .node span{display:block;font-weight:400;color:var(--muted);font-size:.72rem;margin-top:.1rem}
+  .arch .arrow{color:var(--ember);font-size:1.05rem}
+
+  .close-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:1.6rem;align-items:start}
+  .close-grid ul{list-style:none;margin-top:.2rem}
+  .close-grid li{padding:.6rem 0 .6rem 1.3rem;position:relative;font-size:.98rem;line-height:1.55;color:var(--ink-2);border-bottom:1px dashed var(--hairline)}
+  .close-grid li:last-child{border-bottom:none}
+  .close-grid li::before{content:"◆";position:absolute;left:0;top:.68rem;color:var(--ember);font-size:.6rem}
+  .close-grid li b{color:var(--ink)}
+  .bignum{font-family:var(--serif);font-size:2.6rem;color:var(--ember);line-height:1}
+  .stat{padding:1rem 1.2rem}
+  .stat .cap{font-size:.82rem;color:var(--ink-2);margin-top:.35rem;line-height:1.45}
+  .stat + .stat{margin-top:.9rem}
+
+  .thanks{justify-content:center;align-items:flex-start}
+  .thanks h1{font-size:5rem}
+  .thanks .lede{margin-top:1.2rem}
+
+  .nav{position:fixed;bottom:1.1rem;right:1.4rem;display:flex;gap:.5rem;z-index:5}
+  .nav button{border:1px solid var(--hairline);background:var(--card);border-radius:9px;width:40px;height:36px;font-size:1rem;cursor:pointer;color:var(--ink-2)}
+  .nav button:hover{background:var(--ember-wash)}
+  .count{position:fixed;bottom:1.35rem;left:1.6rem;color:var(--muted);font-size:.78rem;z-index:5;font-variant-numeric:tabular-nums}
+  .dots{position:fixed;bottom:1.55rem;left:50%;transform:translateX(-50%);display:flex;gap:.45rem;z-index:5}
+  .dot{width:8px;height:8px;border-radius:50%;background:rgba(33,27,20,.15);cursor:pointer}
+  .dot.on{background:var(--ember)}
+</style>
+</head>
+<body>
+
+<!-- 1 · title -->
+<section class="slide active">
+  <div class="kicker">MSAI 5573 · AI Studio II · Final Presentation · Summer 2026</div>
+  <div class="brand-dot"></div>
+  <h1>Buddy AI</h1>
+  <div class="rule"></div>
+  <p class="lede" style="font-size:1.35rem;max-width:46ch">A life-coaching companion that <b>remembers who you are</b>. Built, evaluated, and red-teamed over five agile sprints.</p>
+  <div style="margin-top:2.4rem;display:flex;gap:2.6rem;font-size:1rem;color:var(--ink-2)">
+    <span><b style="color:var(--ink)">Willie Boone</b><br>Lead Developer</span>
+    <span><b style="color:var(--ink)">Hunter Phillips</b><br>Research &amp; Evaluation</span>
+  </div>
+  <div class="foot"><span>github.com/wdboone/revised-buddyai-v2</span><span>July 2026</span></div>
+</section>
+
+<!-- 2 · team -->
+<section class="slide">
+  <div class="kicker">The team</div>
+  <h2>One builder, one evaluator</h2>
+  <div class="cols-2">
+    <div class="card person">
+      <span class="tag dev">Build track</span>
+      <h3>Willie Boone</h3>
+      <div class="role">Lead Developer</div>
+      <ul>
+        <li><b>Strengths:</b> AI-Assisted Coding, Prompt Engineering, UI/UX Design</li>
+        <li>Designed and built the entire application: chat interface, topic routing, user-model UI, web-grounded replies.</li>
+        <li>Stood up the Supabase backend: email/password auth, per-user Postgres storage with row-level security, cross-device sync, and the server-side API-key proxy.</li>
+        <li>Owned the repo, README, and deployment.</li>
+      </ul>
+    </div>
+    <div class="card person">
+      <span class="tag res">Research track</span>
+      <h3>Hunter Phillips</h3>
+      <div class="role">Research &amp; Evaluation</div>
+      <ul>
+        <li><b>Strengths:</b> System Design, Architecture, Research</li>
+        <li>Ran the user-modeling study: does structuring what Buddy knows about you help or hurt coaching quality?</li>
+        <li>Built the guardrail red-team suite, ran it live, and shipped the prompt hardening it called for.</li>
+        <li>Sprint logs, issue triage, architecture guidance, user testing.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>github.com/wdboone/revised-buddyai-v2</span></div>
+</section>
+
+<!-- 3 · problem -->
+<section class="slide">
+  <div class="kicker">The problem</div>
+  <h2>Why someone would use Buddy</h2>
+  <p class="lede">Most people working through career changes, money stress, or family strain don't have anyone who knows their whole situation. Professional coaching is expensive and episodic. A generic chatbot starts from zero every time: it forgets you, drifts into medical or legal advice, and has no plan for a crisis.</p>
+  <div class="rule"></div>
+  <div class="cols-3">
+    <div class="card"><b style="font-family:var(--serif);font-size:1.15rem">It remembers you</b><p class="stat cap" style="padding:0;margin-top:.4rem">Each reply distills durable facts into a persistent user model the user can view and edit.</p></div>
+    <div class="card"><b style="font-family:var(--serif);font-size:1.15rem">It stays aligned</b><p class="stat cap" style="padding:0;margin-top:.4rem">Eight life domains, auto-routed per conversation. Role and safety boundaries are written into the prompt and verified with a red-team suite, crisis handling included.</p></div>
+    <div class="card"><b style="font-family:var(--serif);font-size:1.15rem">It's grounded</b><p class="stat cap" style="padding:0;margin-top:.4rem">Replies draw on live web search with cited sources, and accounts sync across devices with per-user data isolation.</p></div>
+  </div>
+  <div class="foot"><span>Buddy AI: a web app anyone can open, sign into, and start a coaching relationship with</span></div>
+</section>
+
+<!-- 4 · SMART goals -->
+<section class="slide">
+  <div class="kicker">SMART goals</div>
+  <h2>What we set out to do</h2>
+  <div>
+    <div class="card goal">
+      <p><b>An early working product.</b> Ship a functioning coaching web app: chat, topic routing, chat history, a visible user model.</p>
+      <div class="verdict">✓ · Week 2</div>
+    </div>
+    <div class="card goal">
+      <p><b>Real accounts.</b> Email/password auth with cross-device sync and per-user data isolation, and the API key moved server-side.</p>
+      <div class="verdict">✓ · Weeks 3–4</div>
+    </div>
+    <div class="card goal">
+      <p><b>An evidence-based user model.</b> Decide how Buddy should represent what it knows about a user via a controlled evaluation (blind LLM judge plus a human pass).</p>
+      <div class="verdict">✓ · Week 3</div>
+    </div>
+    <div class="card goal">
+      <p><b>Measured safety.</b> Build a repeatable red-team suite for Buddy's role and safety guardrails, and drive measured attack success below 5%.</p>
+      <div class="verdict">✓ · 8.6% → 0%</div>
+    </div>
+  </div>
+  <div class="foot"><span>Specific · Measurable · Achievable · Relevant · Time-bound</span></div>
+</section>
+
+<!-- 5 · user stories -->
+<section class="slide">
+  <div class="kicker">Initial user stories</div>
+  <h2>The backlog</h2>
+  <div class="stories">
+    <div class="story"><span class="oc"></span><span class="tt">Coaching chat across eight life domains</span><span class="ref">v1</span></div>
+    <div class="story"><span class="oc"></span><span class="tt">Automatic topic routing</span><span class="ref">#5</span></div>
+    <div class="story"><span class="oc"></span><span class="tt">Formatted, readable replies</span><span class="ref">#2</span></div>
+    <div class="story"><span class="oc"></span><span class="tt">Chat history &amp; resume</span><span class="ref">#4</span></div>
+    <div class="story"><span class="oc"></span><span class="tt">Editable user memory</span><span class="ref">#7</span></div>
+    <div class="story"><span class="oc"></span><span class="tt">Coach-role guardrails &amp; crisis resources</span><span class="ref">#6</span></div>
+    <div class="story"><span class="oc"></span><span class="tt">Accounts with cross-device sync</span><span class="ref">#3</span></div>
+    <div class="story"><span class="oc"></span><span class="tt">Server-side API key &amp; per-user data isolation</span><span class="ref">v3</span></div>
+  </div>
+  <div class="foot"><span>github.com/wdboone/revised-buddyai-v2/issues</span></div>
+</section>
+
+<!-- 6 · timeline -->
+<section class="slide">
+  <div class="kicker">Timeline</div>
+  <h2>Week by week</h2>
+  <div class="tl">
+    <div class="tl-bar"></div>
+    <div class="tl-weeks">
+      <div class="wk"><h4>Concept demo</h4><div class="when">Wk 1 · Jun 30</div>
+        <ul><li>Working chat demo</li><li>Evaluation harness</li></ul></div>
+      <div class="wk"><h4>Feature build</h4><div class="when">Wk 2 · Jul 7</div>
+        <ul><li>History, routing, user model, web search</li><li>First evaluation results</li></ul></div>
+      <div class="wk"><h4>Real accounts</h4><div class="when">Wk 3 · Jul 14</div>
+        <ul><li>Auth + cross-device sync</li><li>User-model study: <b>raw history wins</b></li></ul></div>
+      <div class="wk"><h4>Red team</h4><div class="when">Wk 4 · Jul 21</div>
+        <ul><li>Guardrail suite: <b>8.6% of attacks landed</b></li><li>File upload · signup fix</li></ul></div>
+      <div class="wk gold"><h4>Hardened</h4><div class="when">Wk 5 · Jul 23</div>
+        <ul><li>API key server-side</li><li>Prompt hardening: <b>0% of attacks land</b></li></ul></div>
+    </div>
+  </div>
+  <div class="split" style="margin-top:1.6rem">
+    <div class="card added-col">
+      <h3><span class="tag added">Added as we learned</span></h3>
+      <ul>
+        <li><b>Guardrail red-team spike.</b> Guardrails were "done" in Week 2 but never measured. The spike found three real gaps.</li>
+        <li><b>Prompt hardening.</b> The fix for those three gaps.</li>
+        <li><b>Server-side API key.</b> Known limitation, promoted once real accounts existed.</li>
+        <li><b>File upload → user model.</b> Lets users teach Buddy faster than chat alone.</li>
+        <li><b>Signup-redirect fix.</b> Found by the first real signup.</li>
+      </ul>
+    </div>
+    <div class="card later-col">
+      <h3><span class="tag later">Postponed</span></h3>
+      <ul>
+        <li><b>Output safety classifier.</b> Designed, then deferred once prompt hardening alone reached 0% measured attack success.</li>
+        <li><b>Tiered memory retrieval.</b> Matters once a user's history outgrows the context window.</li>
+        <li><b>Per-user rate limiting.</b> Needed at public scale.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>12 issues opened · 12 closed</span></div>
+</section>
+
+<!-- 8 · demo setup -->
+<section class="slide">
+  <div class="kicker">Demonstration</div>
+  <div class="brand-dot" style="margin-top:8vh"></div>
+  <h1>Demo</h1>
+  <div class="rule"></div>
+</section>
+
+<!-- 9 · closing -->
+<section class="slide">
+  <div class="kicker">Closing</div>
+  <h2>What we learned</h2>
+  <p class="lede" style="color:var(--muted)">&lt;WILLIE placeholder (2-3 bullets)&gt;</p>
+  <p class="lede" style="color:var(--muted)">&lt;HUNTER placeholder&gt;</p>
+</section>
+
+<!-- 10 · thanks -->
+<section class="slide thanks">
+  <div class="kicker">Buddy AI · AI Studio II · Summer 2026</div>
+  <div class="brand-dot"></div>
+  <h1>Thank you.</h1>
+  <div class="rule"></div>
+  <p class="lede" style="color:var(--muted);font-size:.95rem">Willie Boone · Hunter Phillips · github.com/wdboone/revised-buddyai-v2</p>
+</section>
+
+<div class="count" id="count">1 / 10</div>
+<div class="dots" id="dots"></div>
+<div class="nav">
+  <button id="prev" aria-label="Previous slide">←</button>
+  <button id="next" aria-label="Next slide">→</button>
+</div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  const dots=document.getElementById('dots');
+  slides.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' on':'');d.onclick=()=>go(i);dots.appendChild(d)});
+  let cur=0;
+  function go(i){
+    cur=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach((s,j)=>s.classList.toggle('active',j===cur));
+    [...dots.children].forEach((d,j)=>d.classList.toggle('on',j===cur));
+    document.getElementById('count').textContent=(cur+1)+' / '+slides.length;
+  }
+  document.getElementById('prev').onclick=()=>go(cur-1);
+  document.getElementById('next').onclick=()=>go(cur+1);
+  addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')go(cur+1);
+    if(e.key==='ArrowLeft'||e.key==='PageUp')go(cur-1);
+    if(e.key==='Home')go(0); if(e.key==='End')go(slides.length-1);
+  });
+</script>
+</body>
+</html>
