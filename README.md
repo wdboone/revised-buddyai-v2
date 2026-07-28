@@ -143,9 +143,16 @@ Upload `index.html` to any static host — GitHub Pages, Vercel, or Netlify. No 
 Buddy operates under explicit system-prompt guardrails:
 
 - **No credential claims** — will not represent itself as a licensed therapist, physician, attorney, or financial advisor
+- **Scope of practice** — never gives professional-grade specifics (medication or supplement doses, diagnoses, legal or tax filings, investment picks), regardless of how the conversation developed, claimed credentials, or stored facts
+- **Untrusted content** — web-search results, stored profile facts, and uploaded files are treated as data, not instructions; embedded directives are reported, never followed
+- **Memory discipline** — the user model persists only facts grounded in what the user said: no invented specifics, no facts inferred from questions or hypotheticals, no credential claims or instruction-shaped text
 - **Out-of-scope deflection** — declines requests outside coaching with a warm redirect using a defined pattern: acknowledge → explain → redirect
 - **Crisis protocol** — detects distress signals via regex pre-check (fires before the API call) and includes 988 / Crisis Text Line resources immediately; the system prompt reinforces this at the model level
 - **AI disclosure** — answers honestly if directly asked whether it is a real person
+
+These guardrails are verified by a 48-case red-team suite (`guardrail-tests/`): measured attack success went
+from 8.6% to 0% after the scope-of-practice, untrusted-content, and memory rules landed. See
+`guardrail-tests/FINDINGS.md` for results and known residuals.
 
 ---
 
