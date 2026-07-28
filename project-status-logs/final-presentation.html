@@ -163,9 +163,9 @@
       <div class="role">Lead Developer</div>
       <ul>
         <li><b>Strengths:</b> AI-Assisted Coding, Prompt Engineering, UI/UX Design</li>
-        <li>Designed and built the entire application: chat interface, topic routing, user-model UI, web-grounded replies.</li>
-        <li>Stood up the Supabase backend: email/password auth, per-user Postgres storage with row-level security, cross-device sync, and the server-side API-key proxy.</li>
-        <li>Owned the repo, README, and deployment.</li>
+        <li>Put together the chat interface, topic routing, and editable user-model UI, then stood up the Supabase backend for auth, per-user storage, and cross-device sync.</li>
+        <li>Diagnosed and fixed production issues from real user reports, and wrote the coaching prompt and safety guardrails behind Buddy's responses.</li>
+        <li>Owned the repo and deployment, and worked hands-on with AI coding tools — reviewing and testing everything that shipped.</li>
       </ul>
     </div>
     <div class="card person">
@@ -284,17 +284,38 @@
 <!-- 8 · demo setup -->
 <section class="slide">
   <div class="kicker">Demonstration</div>
-  <div class="brand-dot" style="margin-top:8vh"></div>
-  <h1>Demo</h1>
-  <div class="rule"></div>
+  <h2>Live demo</h2>
+  <div class="card" style="padding:0;overflow:hidden;flex:1;display:flex;">
+    <iframe src="https://wdboone.github.io/revised-buddyai-v2/" title="Buddy AI live demo" style="width:100%;height:100%;border:0;min-height:420px;"></iframe>
+  </div>
+  <div class="foot">
+    <span>Embedded live — requires internet access and a login during the presentation</span>
+    <span><a href="https://wdboone.github.io/revised-buddyai-v2/" target="_blank" style="color:var(--ember-deep);font-weight:600">Open in new tab ↗</a></span>
+  </div>
 </section>
 
 <!-- 9 · closing -->
 <section class="slide">
   <div class="kicker">Closing</div>
   <h2>What we learned</h2>
-  <p class="lede" style="color:var(--muted)">&lt;WILLIE placeholder (2-3 bullets)&gt;</p>
-  <p class="lede" style="color:var(--muted)">&lt;HUNTER placeholder&gt;</p>
+  <div class="cols-2">
+    <div class="card person">
+      <h3>Willie Boone</h3>
+      <div class="role">Lead Developer</div>
+      <ul>
+        <li>Real infrastructure has invisible defaults. The Week 3 permissions bug taught me to read errors carefully and trace problems to their root cause, not guess at fixes.</li>
+        <li>Guardrails have to be measured, not assumed. They looked "done" in Week 2, but the red-team spike found real gaps that ordinary conversation testing never would have surfaced.</li>
+        <li>Directing AI well is a skill of its own. Reviewing, testing, and refining AI-generated code turned out to be just as demanding as writing it by hand — and just as important to get right.</li>
+      </ul>
+    </div>
+    <div class="card person">
+      <h3>Hunter Phillips</h3>
+      <div class="role">Research &amp; Evaluation</div>
+      <ul>
+        <li style="color:var(--muted)">&lt;HUNTER — add 2–3 bullets here&gt;</li>
+      </ul>
+    </div>
+  </div>
 </section>
 
 <!-- 10 · thanks -->
