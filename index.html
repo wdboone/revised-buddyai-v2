@@ -232,12 +232,20 @@ a{color:inherit;}
       <p class="tagline" style="margin-bottom:16px;" id="auth-tagline">Log in to pick up right where you left off.</p>
       <input type="email" id="auth-email" class="name-input" placeholder="Email" autocomplete="email"/>
       <input type="password" id="auth-password" class="name-input" placeholder="Password" autocomplete="current-password"/>
+      <p id="forgot-password" style="font-size:12.5px;text-align:right;margin:-6px 0 12px;"><a onclick="requestPasswordReset()" style="color:var(--sage-dark);text-decoration:underline;cursor:pointer;">Forgot password?</a></p>
       <p id="auth-error" style="color:#B05040;font-size:12.5px;margin:-6px 0 12px;display:none;"></p>
       <button class="btn-primary" id="auth-submit-btn" onclick="handleAuthSubmit()">Log in</button>
       <p class="onboard-foot" style="margin-top:14px;">
         <span id="auth-switch-text">New here?</span>
-        <a onclick="toggleAuthMode()" style="color:var(--sage-dark);text-decoration:underline;cursor:pointer;font-weight:600;">Create an account</a>
+        <a id="auth-switch-link" onclick="toggleAuthMode()" style="color:var(--sage-dark);text-decoration:underline;cursor:pointer;font-weight:600;">Create an account</a>
       </p>
+    </div>
+    <div class="onboard-step" id="step-reset">
+      <h1 style="font-size:22px;">Set a new password</h1>
+      <p class="tagline" style="margin-bottom:16px;">Choose a new password for your Buddy account.</p>
+      <input type="password" id="reset-password" class="name-input" placeholder="New password" autocomplete="new-password"/>
+      <p id="reset-error" style="color:#B05040;font-size:12.5px;margin:-6px 0 12px;display:none;"></p>
+      <button class="btn-primary" id="reset-submit-btn" onclick="finishPasswordReset()">Set new password</button>
     </div>
   </div>
 </div>
@@ -472,10 +480,13 @@ function toggleAuthMode(){
   document.getElementById("auth-tagline").textContent=authMode==="login"?"Log in to pick up right where you left off.":"Your conversations and profile will follow you to any device.";
   document.getElementById("auth-submit-btn").textContent=authMode==="login"?"Log in":"Sign up";
   document.getElementById("auth-switch-text").textContent=authMode==="login"?"New here?":"Already have an account?";
-  document.querySelector("#step-auth .onboard-foot a").textContent=authMode==="login"?"Create an account":"Log in";
+  document.getElementById("auth-switch-link").textContent=authMode==="login"?"Create an account":"Log in";
+  document.getElementById("forgot-password").style.display=authMode==="login"?"block":"none";
   document.getElementById("auth-error").style.display="none";
 }
-function showAuthError(msg){ const e=document.getElementById("auth-error"); e.textContent=msg; e.style.display="block"; }
+function switchToLogin(){ if(authMode!=="login") toggleAuthMode(); }
+function showAuthMessage(html,color="#B05040"){ const e=document.getElementById("auth-error"); e.innerHTML=html; e.style.color=color; e.style.display="block"; }
+function showAuthError(msg){ const e=document.getElementById("auth-error"); e.textContent=msg; e.style.color="#B05040"; e.style.display="block"; }
 async function handleAuthSubmit(){
   const email=document.getElementById("auth-email").value.trim();
   const password=document.getElementById("auth-password").value;
@@ -491,6 +502,10 @@ async function signUp(email,password){
     options:{ emailRedirectTo:"https://wdboone.github.io/revised-buddyai-v2/" }
   });
   if(error){ showAuthError(error.message); return; }
+  if(data.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0){
+    showAuthMessage('An account with this email already exists — <a onclick="switchToLogin()" style="color:var(--sage-dark);text-decoration:underline;cursor:pointer;font-weight:600;">log in</a> instead, or <a onclick="requestPasswordReset()" style="color:var(--sage-dark);text-decoration:underline;cursor:pointer;font-weight:600;">reset your password</a>.');
+    return;
+  }
   if(!data.session){ showAuthError("Check your email to confirm your account, then log in."); return; }
   await afterAuth(data.user);
 }
@@ -498,6 +513,31 @@ async function logIn(email,password){
   const {data,error}=await sb.auth.signInWithPassword({email,password});
   if(error){ showAuthError(error.message); return; }
   await afterAuth(data.user);
+}
+async function requestPasswordReset(){
+  const email=document.getElementById("auth-email").value.trim();
+  if(!email){ showAuthError("Enter your email first, then ask for a reset link."); return; }
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:"https://wdboone.github.io/revised-buddyai-v2/"});
+  if(error){ showAuthError(error.message); return; }
+  showAuthMessage("If an account exists for that email, a reset link is on its way — check your inbox.","var(--sage-dark)");
+}
+let recoveryUser=null;
+function showResetMessage(msg,color="#B05040"){ const e=document.getElementById("reset-error"); e.textContent=msg; e.style.color=color; e.style.display="block"; }
+async function finishPasswordReset(){
+  const password=document.getElementById("reset-password").value;
+  if(!password){ showResetMessage("Enter a new password."); return; }
+  const btn=document.getElementById("reset-submit-btn"); btn.disabled=true;
+  const {error}=await sb.auth.updateUser({password});
+  if(error){ showResetMessage(error.message); btn.disabled=false; return; }
+  let user=recoveryUser;
+  if(!user){
+    const {data:userData,error:userError}=await sb.auth.getUser();
+    if(userError){ showResetMessage(userError.message); btn.disabled=false; return; }
+    user=userData.user;
+  }
+  showResetMessage("Your password is updated. Taking you back to Buddy.","var(--sage-dark)");
+  history.replaceState(null,"",location.pathname+location.search);
+  setTimeout(()=>afterAuth(user),900);
 }
 function logOut(){ sb.auth.signOut(); location.reload(); }
 async function afterAuth(user){
@@ -816,7 +856,8 @@ async function callBuddy(){
 /* ── Window exports ── */
 window.toggleBeatitudes=toggleBeatitudes;
 window.goToStep=goToStep;
-window.handleAuthSubmit=handleAuthSubmit; window.toggleAuthMode=toggleAuthMode;
+window.handleAuthSubmit=handleAuthSubmit; window.toggleAuthMode=toggleAuthMode; window.switchToLogin=switchToLogin;
+window.requestPasswordReset=requestPasswordReset; window.finishPasswordReset=finishPasswordReset;
 window.sendMessage=sendMessage; window.retryLast=retryLast;
 window.selectCategory=selectCategory;
 window.startNewConversation=startNewConversation;
@@ -828,7 +869,16 @@ window.editFact=editFact; window.delFact=delFact; window.addManualFact=addManual
 window.handleFileUpload=handleFileUpload;
 // API key modal removed — key lives in Supabase Edge Function secret
 
-sb.auth.getSession().then(({data:{session}})=>{ if(session){ afterAuth(session.user); } });
+const isRecovery=location.hash.includes("type=recovery");
+if(isRecovery) goToStep("reset");
+sb.auth.onAuthStateChange((event,session)=>{
+  if(event==="PASSWORD_RECOVERY"){
+    recoveryUser=session?.user||null;
+    document.getElementById("onboarding").style.display="flex";
+    goToStep("reset");
+  }
+});
+sb.auth.getSession().then(({data:{session}})=>{ if(session&&!isRecovery){ afterAuth(session.user); } });
 </script>
 </body>
 </html>
