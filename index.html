@@ -676,6 +676,8 @@ ${text.slice(0,8000)}
 ---`;
 
   try{
+    const auth=await getAuthHeader();
+    if(!auth){ show("Log in to extract facts from files."); hide(); return; }
     const res=await fetch(CHAT_ENDPOINT,{
       method:"POST",
       headers:{"Content-Type":"application/json","Authorization":auth},
