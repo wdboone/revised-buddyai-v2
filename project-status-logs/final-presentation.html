@@ -27,7 +27,7 @@
       radial-gradient(circle at 85% 78%, rgba(189,154,75,.14), transparent 50%);
   }
   .brand-dot{width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#9FC2A4,#6B8F71);box-shadow:0 0 0 7px rgba(107,143,113,.14);margin-bottom:1.4rem}
-  .slide{position:absolute;inset:0;display:none;flex-direction:column;padding:3.4rem 5rem 4.4rem;overflow-y:auto;z-index:1}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;padding:3.4rem 5rem 4.4rem;overflow-y:auto;z-index:1;max-width:1440px;margin-inline:auto}
   .slide.active{display:flex}
   .slide.active > *{animation:rise .5s cubic-bezier(.22,.7,.35,1) both}
   .slide.active > *:nth-child(2){animation-delay:.06s}
@@ -59,6 +59,8 @@
   .person h3{font-family:var(--serif);font-size:1.6rem;margin:.7rem 0 .2rem}
   .person .role{color:var(--ember-deep);font-weight:600;font-size:.95rem;margin-bottom:.8rem}
   .person ul{margin:.4rem 0 0 1.05rem;color:var(--ink-2);line-height:1.65;font-size:.95rem}
+  .person li{margin-bottom:.5rem}
+  .person li:last-child{margin-bottom:0}
 
   .goal{display:grid;grid-template-columns:1fr max-content;gap:1.1rem;align-items:start;padding:1rem 1.2rem}
   .goal + .goal{margin-top:.8rem}
@@ -127,10 +129,10 @@
   .thanks h1{font-size:5rem}
   .thanks .lede{margin-top:1.2rem}
 
-  .nav{position:fixed;bottom:1.1rem;right:1.4rem;display:flex;gap:.5rem;z-index:5}
+  .nav{position:fixed;bottom:1.1rem;right:max(1.4rem,calc((100vw - 1440px)/2 + 1.4rem));display:flex;gap:.5rem;z-index:5}
   .nav button{border:1px solid var(--hairline);background:var(--card);border-radius:9px;width:40px;height:36px;font-size:1rem;cursor:pointer;color:var(--ink-2)}
   .nav button:hover{background:var(--ember-wash)}
-  .count{position:fixed;bottom:1.35rem;left:1.6rem;color:var(--muted);font-size:.78rem;z-index:5;font-variant-numeric:tabular-nums}
+  .count{position:fixed;bottom:1.35rem;left:max(1.6rem,calc((100vw - 1440px)/2 + 1.6rem));color:var(--muted);font-size:.78rem;z-index:5;font-variant-numeric:tabular-nums}
   .dots{position:fixed;bottom:1.55rem;left:50%;transform:translateX(-50%);display:flex;gap:.45rem;z-index:5}
   .dot{width:8px;height:8px;border-radius:50%;background:rgba(33,27,20,.15);cursor:pointer}
   .dot.on{background:var(--ember)}
@@ -165,7 +167,7 @@
         <li><b>Strengths:</b> AI-Assisted Coding, Prompt Engineering, UI/UX Design</li>
         <li>Put together the chat interface, topic routing, and editable user-model UI, then stood up the Supabase backend for auth, per-user storage, and cross-device sync.</li>
         <li>Diagnosed and fixed production issues from real user reports, and wrote the coaching prompt and safety guardrails behind Buddy's responses.</li>
-        <li>Owned the repo and deployment, and worked hands-on with AI coding tools — reviewing and testing everything that shipped.</li>
+        <li>Owned the repo and deployment, and worked hands-on with AI coding tools, reviewing and testing everything that shipped.</li>
       </ul>
     </div>
     <div class="card person">
@@ -289,7 +291,7 @@
     <iframe src="https://wdboone.github.io/revised-buddyai-v2/" title="Buddy AI live demo" style="width:100%;height:100%;border:0;min-height:420px;"></iframe>
   </div>
   <div class="foot">
-    <span>Embedded live — requires internet access and a login during the presentation</span>
+    <span>Embedded live: requires internet access and a login during the presentation</span>
     <span><a href="https://wdboone.github.io/revised-buddyai-v2/" target="_blank" style="color:var(--ember-deep);font-weight:600">Open in new tab ↗</a></span>
   </div>
 </section>
@@ -305,14 +307,16 @@
       <ul>
         <li>Real infrastructure has invisible defaults. The Week 3 permissions bug taught me to read errors carefully and trace problems to their root cause, not guess at fixes.</li>
         <li>Guardrails have to be measured, not assumed. They looked "done" in Week 2, but the red-team spike found real gaps that ordinary conversation testing never would have surfaced.</li>
-        <li>Directing AI well is a skill of its own. Reviewing, testing, and refining AI-generated code turned out to be just as demanding as writing it by hand — and just as important to get right.</li>
+        <li>Directing AI well is a skill of its own. Reviewing, testing, and refining AI-generated code turned out to be just as demanding as writing it by hand, and just as important to get right.</li>
       </ul>
     </div>
     <div class="card person">
       <h3>Hunter Phillips</h3>
       <div class="role">Research &amp; Evaluation</div>
       <ul>
-        <li style="color:var(--muted)">&lt;HUNTER — add 2–3 bullets here&gt;</li>
+        <li>Data > Structure</li>
+        <li>Evals: you don't know what you can't measure</li>
+        <li>Claude Code isn't a coding tool</li>
       </ul>
     </div>
   </div>
