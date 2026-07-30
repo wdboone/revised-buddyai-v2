@@ -23,13 +23,13 @@
 
 | Date | Backlog | Ready | In Progress | In Review | Done | Notes |
 |---|---|---|---|---|---|---|
-| 07/30 | Tiered memory spike (#13) | | Final presentation (Hunter's closing bullets) | Deck review (#14) | Auth UX fix (#15) | #15 opened, implemented, reviewed, and closed same day. #14 has Willie's edits pushed but awaits his closing comment. Issues: https://github.com/wdboone/revised-buddyai-v2/issues |
+| 07/30 | Tiered memory spike (#13) | | | | Auth UX fix (#15); Deck review (#14); Final presentation content | #15 opened, implemented, reviewed, closed, and verified live same week. #14 closed with Willie's sections in. Issues: https://github.com/wdboone/revised-buddyai-v2/issues |
 
 ## 4. Blockers & risks
 
 | Blocker / risk | Impact | Owner | Action to resolve | Status |
 |---|---|---|---|---|
-| The password-reset email leg is code-reviewed but untested against the real Supabase project. | A broken reset flow would recreate the lockout it was built to fix. | Hunter / Willie | Run a live round-trip once GitHub Pages picks up the deploy: request a reset, follow the emailed link, set a new password, land in the app. | Open |
+| The password-reset email leg is code-reviewed but untested against the real Supabase project. | A broken reset flow would recreate the lockout it was built to fix. | Hunter / Willie | Verified live 07/30: reset requested, emailed link followed, new password set, landed in the app. | Resolved |
 | The presentation's demo depends on the live app inside an iframe; login may misbehave cross-origin. | A stalled demo in front of the class. | Hunter | Rehearse beforehand; the open-in-new-tab link is the fallback. | Open |
 | The `chat` Edge Function source is still not in the repo (carried from Sprint 4). | The deployed safety-critical proxy isn't version-controlled. | Willie | Pull the function source into the repo. | Open |
 
@@ -44,9 +44,9 @@
 
 | Action / next step | Owner | Due | Link (PR / issue / story) |
 |---|---|---|---|
-| Write the remaining learning-outcomes bullets on the closing slide. | Hunter | Before the presentation | https://github.com/wdboone/revised-buddyai-v2/issues/14 |
-| Close #14 once the deck review is confirmed done. | Willie | Next standup | https://github.com/wdboone/revised-buddyai-v2/issues/14 |
-| Live round-trip test of the password-reset flow. | Hunter / Willie | Next standup | https://github.com/wdboone/revised-buddyai-v2/issues/15 |
+| ~~Write the remaining learning-outcomes bullets on the closing slide~~ Done 07/30. | Hunter | Done | https://github.com/wdboone/revised-buddyai-v2/issues/14 |
+| ~~Close #14~~ Closed 07/30 with Willie's sections in. | Willie | Done | https://github.com/wdboone/revised-buddyai-v2/issues/14 |
+| ~~Live round-trip test of the password-reset flow~~ Done 07/30: verified on the live site. | Hunter | Done | https://github.com/wdboone/revised-buddyai-v2/issues/15 |
 | Tiered memory retrieval spike. | Hunter | Open | https://github.com/wdboone/revised-buddyai-v2/issues/13 |
 | Pull the `chat` Edge Function source into the repo (carried from Sprint 4). | Willie | Next standup | https://github.com/wdboone/revised-buddyai-v2/issues/9 |
 

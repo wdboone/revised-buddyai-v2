@@ -76,7 +76,7 @@ Running progress record + mid-term assessment summary.
 | Guardrail hardening — Measure 1 (#12) | App change + report | Created | Designed and shipped three system-prompt rules (scope-of-practice, untrusted-content, persist-only-stated-facts), extended the suite to 48 cases for cross-domain coverage, and verified against the baseline: attack success 8.6% → 0%, unsafe memory writes 2 → 0, all three bypasses closed. | Complete | https://github.com/wdboone/revised-buddyai-v2/issues/12 |
 | Final presentation deck | Presentation | Created | Authored the deck (nine slides in the app's visual theme) and coordinated Willie's sections via #14; my learning-outcomes bullets remain to be written. | In progress | [`final-presentation.html`](final-presentation.html) |
 | Guardrail demo deck | Presentation | Created | Built the walkthrough shown during the demo section: the test harness explained visually, baseline results, before/after transcripts from real runs, and the system-prompt diff. | Complete | Presentation aid, kept outside the repo |
-| Auth UX fix — password reset + duplicate-signup feedback (#15) | App change | Created | Diagnosed both dead-ends from the live app, specced the fix, directed an AI implementation, reviewed and shipped it. Reset-email round-trip still to be verified against the live site. | Complete | https://github.com/wdboone/revised-buddyai-v2/issues/15 |
+| Auth UX fix — password reset + duplicate-signup feedback (#15) | App change | Created | Diagnosed both dead-ends from the live app, specced the fix, directed an AI implementation, reviewed and shipped it, and verified the reset-email round-trip on the live site. | Complete | https://github.com/wdboone/revised-buddyai-v2/issues/15 |
 
 ## Mid-Term Summary (this is what you submit)
 
