@@ -23,7 +23,7 @@
 
 | Date | Backlog | Ready | In Progress | In Review | Done | Notes |
 |---|---|---|---|---|---|---|
-| 07/30 | Tiered memory spike (#13) | | | | Auth UX fix (#15); Deck review (#14); Final presentation content | #15 opened, implemented, reviewed, closed, and verified live same week. #14 closed with Willie's sections in. Issues: https://github.com/wdboone/revised-buddyai-v2/issues |
+| 07/30 | Tiered memory spike (#13) | | | | Auth UX fix (#15); File-upload fix (#16); Deck review (#14); Final presentation content | #15 and #16 each opened, fixed, closed, and verified live same day. #14 closed with Willie's sections in. Issues: https://github.com/wdboone/revised-buddyai-v2/issues |
 
 ## 4. Blockers & risks
 
@@ -54,7 +54,7 @@
 
 | Reflection prompt | Team's notes |
 |---|---|
-| **What went well this sprint?** | The presentation came together with both members' sections in place, and a real UX bug — found by getting locked out of an account — went from discovery to filed, fixed, reviewed, and shipped in a day. |
+| **What went well this sprint?** | The presentation came together with both members' sections in place, and two production bugs went from discovery to filed, fixed, and verified live the same day: the auth dead-ends found by getting locked out of an account (#15), and file-upload fact extraction silently broken since the Edge Function migration (#16). |
 | **What slowed us down?** | The auth dead-end itself: being unable to reset a password or learn that an account already existed cost real time before it was diagnosed as the app's gap rather than user error. |
 | **What will we change next sprint?** | Rehearse the demo path end-to-end before presenting instead of trusting that the deployed app will behave inside the deck. |
 
