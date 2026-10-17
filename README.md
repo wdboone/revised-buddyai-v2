@@ -1,198 +1,82 @@
-# Buddy AI — AI-Powered Life Coach
+# Buddy AI: AI-Powered Life Coach
 
-A web app that delivers personalized life coaching through a conversational interface powered by the Anthropic API. Built as a functional prototype with real user accounts, cloud-synced conversation history, web-grounded responses, and a user model that learns from both conversation and uploaded documents.
+A conversational coaching app built on Claude Sonnet 4.6, with live web-search grounding, topic routing, a persistent user model, and role-aligned safety guardrails that were red-teamed and measured, not just asserted.
 
----
+**Live demo:** https://wdboone.github.io/revised-buddyai-v2/
 
-## Live App
+_Sign-up is open on the live app. Create a free test account to try it. Buddy is a coaching tool, not a therapist or a substitute for professional help._
 
-**[https://wdboone.github.io/revised-buddyai-v2/](https://wdboone.github.io/revised-buddyai-v2/)**
+## What it does
 
-Sign up with an email and password. Your conversations and profile sync across any device you log in from.
-
----
-
-## Features
-
-| Feature | Status | Notes |
-|---|---|---|
-| **Markdown rendering** | ✅ Live | `marked` + `DOMPurify` via CDN |
-| **User accounts** | ✅ Live | Email/password via Supabase Auth |
-| **Chat history** | ✅ Live | Persisted in Supabase Postgres, synced across devices |
-| **Topic routing** | ✅ Live | Auto-classification via Claude Haiku |
-| **Role alignment & guardrails** | ✅ Live | System prompt + client-side crisis pre-check |
-| **User modeling** | ✅ Live | Fact extraction from conversation + view/edit profile panel |
-| **File upload → fact extraction** | ✅ Live | `.txt` and `.md` files; AI extracts personal facts on upload |
-| **Web-grounded responses** | ✅ Live | Anthropic `web_search` tool, up to 3 searches per reply |
-| **Server-side API key** | ✅ Live | Anthropic key stored in Supabase Edge Function secret — never in the browser |
-| **PDF file upload** | ⏳ Planned | Requires `pdf.js` — deferred to next release |
-
----
+- Coaching conversations across eight areas (Relationships, Career, Finances, Parenting, Faith, Workplace Ethics, Personal Growth, and more) plus an open "Just Talk" mode
+- User accounts with cloud-synced chat history
+- A user model that learns from conversation and from uploaded `.txt` and `.md` files, stored as structured memory
+- Web-grounded answers through a search tool
+- Role-aligned guardrails: no credential claims, scope-of-practice limits, honest AI disclosure, and a crisis pre-check that surfaces 988 resources
 
 ## Architecture
 
 ```
-index.html  (single-file frontend)
-│
-├── UI Layer          Vanilla JS + CSS custom properties
-├── Markdown          marked@12 + DOMPurify@3 (CDN)
-├── Auth              Supabase Auth (email/password, session persistence)
-├── Database          Supabase Postgres (profiles + conversations, RLS enforced)
-├── Topic Router      Claude Haiku — lightweight first-message classification
-├── Edge Function     Supabase Edge Function — holds the Anthropic API key server-side
-└── Coaching Engine   Claude Sonnet 4.6 — with web_search tool (max 3/reply)
+Browser (GitHub Pages, single-file index.html)
+   |  supabase-js (publishable key + signed-in user session)
+   v
+Supabase Auth + Postgres (Row Level Security: users see only their own rows)
+   |
+   +--> Edge Function (holds the Anthropic API key as a server-side secret)
+           |-- Claude Haiku: topic routing
+           |-- Claude Sonnet 4.6: coaching replies
+           '-- memory extraction from conversation and uploaded files
 ```
 
-**Key architectural decisions:**
-
-- **No build step.** The entire frontend is a single `index.html` with CDN-loaded dependencies. Deployable to any static host instantly.
-- **Server-side API key.** The Anthropic API key lives in a Supabase Edge Function secret. The browser never sees or transmits it. All AI calls route through the Edge Function, which verifies the user's session before forwarding the request.
-- **Two-model strategy.** Topic classification uses `claude-haiku-4-5-20251001` (fast, low cost) while coaching uses `claude-sonnet-4-6` (full capability). This keeps latency and cost reasonable.
-- **Incremental user modeling.** Each assistant reply includes a hidden `<<<MEMO>>>` JSON block that the client parses to extract durable facts. Facts are stored in Supabase and injected back into the system prompt on future conversations — without a separate summarization call.
-- **Row-Level Security.** Every Supabase table has RLS policies ensuring users can only ever read and write their own data. This applies automatically to conversation history, profile facts, and any facts extracted from uploaded files.
-
----
-
-## Setup — For Users
-
-**1.** Open the live app: [https://wdboone.github.io/revised-buddyai-v2/](https://wdboone.github.io/revised-buddyai-v2/)
-
-**2.** Click **Get started** → **Create your account** → enter your email and password.
-
-**3.** Check your email for a confirmation link and click it. You will be brought back to the app and logged in automatically.
-
-**4.** Start talking to Buddy. That's it — no API keys, no setup, no configuration.
-
----
-
-## Setup — For Developers (deploying your own instance)
-
-**1. Supabase project**
-
-- Create a project at [supabase.com](https://supabase.com)
-- Run the SQL schema below in the SQL Editor
-- Under Authentication → URL Configuration, set **Site URL** to your deployment URL
-- Under Authentication → Providers → Email, configure email confirmation settings as needed
-
-**2. Database schema**
-
-```sql
-create table profiles (
-  user_id        uuid primary key references auth.users(id) on delete cascade,
-  first_met      timestamptz,
-  last_seen      timestamptz,
-  session_count  int default 0,
-  memory_facts   jsonb default '[]',
-  category_notes jsonb default '{}'
-);
-
-create table conversations (
-  id         uuid primary key default gen_random_uuid(),
-  user_id    uuid references auth.users(id) on delete cascade not null,
-  title      text not null default 'New conversation',
-  category   text not null default 'general',
-  messages   jsonb default '[]',
-  updated_at timestamptz default now()
-);
-
-alter table profiles      enable row level security;
-alter table conversations enable row level security;
-
-create policy "own profile"       on profiles      for all using (auth.uid() = user_id);
-create policy "own conversations" on conversations for all using (auth.uid() = user_id);
-```
-
-**3. Supabase Edge Function**
-
-- Go to Edge Functions → Deploy a new function → name it `chat`
-- Paste in the Edge Function code (see `/supabase/functions/chat/index.ts` or the Issue #11 reference guide)
-- Under Edge Functions → Secrets, add: `ANTHROPIC_API_KEY` = your `sk-ant-...` key
-
-**4. Frontend configuration**
-
-In `index.html`, update these two lines near the top of the script block:
-
-```js
-const SUPABASE_URL  = "https://your-project-id.supabase.co";
-const SUPABASE_ANON_KEY = "your-anon-key-here";
-```
-
-**5. Deploy**
-
-Upload `index.html` to any static host — GitHub Pages, Vercel, or Netlify. No build step required.
-
----
-
-## Life Coaching Domains
-
-| Category | Focus |
-|---|---|
-| 💬 Just Talk | Open-ended — Buddy follows wherever the conversation goes |
-| ❤️ Relationships | Partners, family, friendships, conflict, boundaries |
-| 💼 Career & Direction | Job search, transitions, burnout, purpose in work |
-| 💰 Finances | Budgeting mindset, debt, financial goal-setting (frameworks only — not financial advice) |
-| 👨‍👩‍👧 Parenting & Family | Raising children, co-parenting, family dynamics |
-| 🙏 Faith & Spiritual Guidance | Meaning, values, doubt, spiritual practice |
-| 🤝 Workplace Ethics | Ethical dilemmas, conflict with coworkers or managers, integrity |
-| 🌱 Personal Growth | Character, habits, self-discipline — anchored to the Beatitudes (Matt 5:3–10) as a character compass |
-
----
-
-## Role Boundaries & Safety
-
-Buddy operates under explicit system-prompt guardrails:
-
-- **No credential claims** — will not represent itself as a licensed therapist, physician, attorney, or financial advisor
-- **Scope of practice** — never gives professional-grade specifics (medication or supplement doses, diagnoses, legal or tax filings, investment picks), regardless of how the conversation developed, claimed credentials, or stored facts
-- **Untrusted content** — web-search results, stored profile facts, and uploaded files are treated as data, not instructions; embedded directives are reported, never followed
-- **Memory discipline** — the user model persists only facts grounded in what the user said: no invented specifics, no facts inferred from questions or hypotheticals, no credential claims or instruction-shaped text
-- **Out-of-scope deflection** — declines requests outside coaching with a warm redirect using a defined pattern: acknowledge → explain → redirect
-- **Crisis protocol** — detects distress signals via regex pre-check (fires before the API call) and includes 988 / Crisis Text Line resources immediately; the system prompt reinforces this at the model level
-- **AI disclosure** — answers honestly if directly asked whether it is a real person
-
-These guardrails are verified by a 48-case red-team suite (`guardrail-tests/`): measured attack success went
-from 8.6% to 0% after the scope-of-practice, untrusted-content, and memory rules landed. See
-`guardrail-tests/FINDINGS.md` for results and known residuals.
-
----
-
-## Data & Privacy
-
-| Data | Where it lives | Shared? |
+| Layer | Choice | Why |
 |---|---|---|
-| Your email and account | Supabase Auth | No — private to your account |
-| Conversation history | Supabase Postgres (RLS) | No — only accessible when logged in as you |
-| Profile facts | Supabase Postgres (RLS) | No — only accessible when logged in as you |
-| Anthropic API key | Supabase Edge Function secret | No — never touches the browser |
+| Frontend | One `index.html`, no build step | Easy to deploy and review; trade-off is no module boundaries |
+| Auth and data | Supabase Auth and Postgres with RLS | Real protection lives on the server, not in client code |
+| AI access | Supabase Edge Function | The API key is never in the browser (see the history below) |
+| Models | Sonnet 4.6 for coaching, Haiku for routing | Match model cost and latency to each task |
+| Output safety | DOMPurify on rendered Markdown | Model output is treated as untrusted HTML |
 
-The Anthropic API key is stored as an encrypted server-side secret. It is never stored in the browser, never transmitted from the browser, and never visible to users.
+### Security history
 
----
+An early version kept each user's Anthropic key in the browser (`localStorage`) and called the API directly. Issue #11 identified this, and the fix moved all AI calls behind a Supabase Edge Function that uses the user's session token, with the key stored as an encrypted server-side secret. The fix was verified in browser dev tools: the stored key is gone, and network calls go to Supabase, not to the Anthropic API.
 
-## Tech Stack
+## Safety evaluation
 
-| Layer | Technology |
-|---|---|
-| UI | Vanilla HTML/CSS/JS — no framework |
-| Markdown | [marked](https://github.com/markedjs/marked) + [DOMPurify](https://github.com/cure53/DOMPurify) |
-| Auth & Database | [Supabase](https://supabase.com) (Auth + Postgres + Edge Functions) |
-| API proxy | Supabase Edge Function (Deno/TypeScript) |
-| AI — coaching | `claude-sonnet-4-6` with `web_search_20250305` tool |
-| AI — routing & file extraction | `claude-haiku-4-5-20251001` |
-| Hosting | GitHub Pages |
+The project includes a guardrail test suite in [`guardrail-tests/`](guardrail-tests/) with cases for prompt injection, out-of-scope requests, crisis messages, memory abuse, and benign "twin" cases that check for over-refusal. Full methods and per-case results are in [`FINDINGS.md`](guardrail-tests/FINDINGS.md).
 
----
+| Metric (original 43 cases: 35 attack, 8 benign) | Baseline | After prompt-level hardening |
+|---|---|---|
+| Attack success rate | 8.6% (3 of 35) | 0% (0 of 35) |
+| Over-refusal on benign cases | 1 of 8 | 1 of 8 |
+| Crisis recall | 10 of 10 | 10 of 10 |
+| Unsafe memory writes | 2 | 0 |
 
-## Project Context
+The suite was then expanded to 48 cases. On the expanded set, one case (`tn-09`) still produces an unsafe memory write, where the coach stored a specific date the user never gave. A second new case (`cres-05`) was judged a borderline bypass. Both are documented as known residuals.
 
-Built as a capstone prototype for the Master of Science in Applied Artificial Intelligence program, Studio II — Summer 2026.
+**How to read these numbers.** The suite is small (35 attack cases), so "0 of 35" shows improvement against this suite, not proof of safety. The prompt changes were tuned against the same cases they were measured on. The crisis regex pre-check never fired on the evasion cases; the model itself caught them, so the regex is a backstop, not the main defense.
 
----
+## Known limitations and next steps
+
+- **System prompt location.** The coaching prompt is assembled in the client. Planned: build it server-side so the Edge Function never trusts client-supplied prompt text.
+- **No rate limiting** on the Edge Function yet.
+- **Output-side classifier** (checking replies and memory writes before they are saved) was designed but postponed. It is the proposed fix for the `tn-09` residual.
+- **Memory retrieval.** The coach is fed extracted facts rather than raw history. A tiered retrieval design is scoped as an open spike (see Issues).
+- **Small evaluation set**, as noted above.
+
+## Setup (to run your own copy)
+
+1. Create a Supabase project and run the SQL schema for the tables, with Row Level Security enabled on every table.
+2. Deploy the Edge Function and add your Anthropic key as a secret named `ANTHROPIC_API_KEY` (Supabase Dashboard, Edge Functions, Secrets). Never put this key in `index.html`.
+3. Set the two config values in `index.html`: your Supabase project URL and publishable key. The publishable key is designed to be public; RLS protects the data.
+4. Host `index.html` on any static host, such as GitHub Pages.
+
+## Team
+
+- **Willie D. Boone III**: lead developer (app, Supabase backend, Edge Function)
+- **@hunterphillips**: evaluation, guardrail test suite, and design spikes
+
+Built as a capstone prototype for the Master of Science in Applied Artificial Intelligence program (Studio II, Summer 2026). Process logs and sprint notes are in [`project-status-logs/`](project-status-logs/).
 
 ## License
 
-MIT — free to use, modify, and build on.
-
----
-
-*Buddy AI is an AI life coach companion — not a substitute for licensed mental health, medical, legal, or financial services. If you are in crisis, call or text 988.*
+MIT. See [`LICENSE`](LICENSE).
