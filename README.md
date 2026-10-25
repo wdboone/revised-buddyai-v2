@@ -26,6 +26,8 @@ Supabase Auth + Postgres (Row Level Security: users see only their own rows)
            |-- Claude Haiku: topic routing
            |-- Claude Sonnet 4.6: coaching replies
            '-- memory extraction from conversation and uploaded files
+
+GitHub Actions (scheduled) --> Supabase REST API (read-only keep-alive ping)
 ```
 
 | Layer | Choice | Why |
@@ -35,6 +37,7 @@ Supabase Auth + Postgres (Row Level Security: users see only their own rows)
 | AI access | Supabase Edge Function | The API key is never in the browser (see the history below) |
 | Models | Sonnet 4.6 for coaching, Haiku for routing | Match model cost and latency to each task |
 | Output safety | DOMPurify on rendered Markdown | Model output is treated as untrusted HTML |
+| Uptime | Scheduled GitHub Actions keep-alive | Free-tier Supabase pauses after about 7 days of inactivity (see Operations) |
 
 ### Security history
 
@@ -62,6 +65,26 @@ The suite was then expanded to 48 cases. On the expanded set, one case (`tn-09`)
 - **Output-side classifier** (checking replies and memory writes before they are saved) was designed but postponed. It is the proposed fix for the `tn-09` residual.
 - **Memory retrieval.** The coach is fed extracted facts rather than raw history. A tiered retrieval design is scoped as an open spike (see Issues).
 - **Small evaluation set**, as noted above.
+- **Free-tier hosting.** The backend runs on Supabase's free tier, kept awake by a keep-alive job (see Operations). A production deployment should move to a paid plan.
+
+## Operations: keeping the free-tier backend alive
+
+Supabase pauses free-tier projects after about 7 days without API or database activity, which would take the live demo offline. A scheduled GitHub Actions workflow ([`.github/workflows/supabase-keep-alive.yml`](.github/workflows/supabase-keep-alive.yml)) sends one read-only request to the database every Monday and Thursday, so the longest gap between pings is 4 days. It also has a manual **Run workflow** trigger for testing.
+
+**Design choices**
+
+- **Least privilege.** The job reads a dedicated `keep_alive` table that holds no user data. Row Level Security is enabled on it, with a single `SELECT` policy for the `anon` role.
+- **Explicit exposure.** Supabase does not expose new tables through the Data API by default. `keep_alive` was exposed on purpose, and the "automatically expose new tables" setting stays off.
+- **Secrets management.** The project URL and publishable key are stored as GitHub Secrets (`SUPABASE_URL`, `SUPABASE_ANON_KEY`), never in the repository. The service role key is not used anywhere in this workflow.
+- **Fail loudly.** The job exits with an error on any response other than HTTP 200, so a failure shows up as a failed run instead of a silent one.
+
+**Verification.** Checked on 2026-10-25 with a manual run (green check, `ping` job completed) and a matching `GET /rest/v1/keep_alive` entry in the Supabase API logs, which confirms the platform counted the request as activity.
+
+**Trade-offs**
+
+- This is a workaround for a portfolio demo. A production app with real users should use a paid Supabase plan, which removes inactivity pausing and adds backups and better reliability.
+- Scheduled workflows depend on GitHub's scheduler, which can start runs late. GitHub also pauses scheduled workflows in a public repository after 60 days without repository activity, so a long quiet period means re-enabling the workflow in the Actions tab.
+- Failure notifications rely on GitHub's Actions emails being enabled for the account.
 
 ## Setup (to run your own copy)
 
@@ -69,6 +92,7 @@ The suite was then expanded to 48 cases. On the expanded set, one case (`tn-09`)
 2. Deploy the Edge Function and add your Anthropic key as a secret named `ANTHROPIC_API_KEY` (Supabase Dashboard, Edge Functions, Secrets). Never put this key in `index.html`.
 3. Set the two config values in `index.html`: your Supabase project URL and publishable key. The publishable key is designed to be public; RLS protects the data.
 4. Host `index.html` on any static host, such as GitHub Pages.
+5. _(Optional, free tier only.)_ Add the keep-alive workflow: create a `keep_alive` table with RLS and a read-only policy for `anon`, expose that one table in the Data API settings, add `SUPABASE_URL` and `SUPABASE_ANON_KEY` as GitHub Secrets, then run the workflow once from the Actions tab and confirm it returns HTTP 200.
 
 ## Team
 
